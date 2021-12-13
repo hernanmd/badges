@@ -40,3 +40,10 @@ ShAbstractBadge >> badgeName [
 ShAbstractBadge >> badgeName: anObject [
 	badgeName := anObject
 ]
+
+{ #category : #'accessing - url' }
+ShAbstractBadge >> baseUrl [
+	" Answer a <String> with the receiver's base url "
+
+	^ self class baseUrl
+]

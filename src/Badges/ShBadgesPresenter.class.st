@@ -13,7 +13,10 @@ Class {
 		'badgesTextArea',
 		'toolbar',
 		'badgesCollector',
-		'badgesSelection'
+		'badgesSelection',
+		'username',
+		'repository',
+		'branch'
 	],
 	#category : #Badges
 }
@@ -24,7 +27,16 @@ ShBadgesPresenter class >> defaultSpec [
     ^ SpBoxLayout newLeftToRight
 			add: #badgeTypes width: 100;
 			spacing: 3;
-			add: (SpBoxLayout newTopToBottom
+			add: (SpBoxLayout new
+				add: (SpGridLayout new 
+					beColumnNotHomogeneous;				
+					add: 'Username' at: 1 @ 1;
+					add: #username at: 2 @ 1;
+					add: 'Repository' at: 3 @ 1;
+					add: #repository at: 4 @ 1;
+					add: 'Branch' at: 5 @ 1;
+					add: #branch at: 6 @1;
+					yourself) height: 50;
 				add: #badgesList;
 				spacing: 3;
 				add: #badgesTextArea height: 80;
@@ -108,15 +120,33 @@ ShBadgesPresenter >> badgesTextArea: anObject [
 	badgesTextArea := anObject
 ]
 
-{ #category : #initialization }
-ShBadgesPresenter >> copySelections: aCollection [
+{ #category : #accessing }
+ShBadgesPresenter >> branch [
 
-	Clipboard clipboardText: (
-		String streamContents: [:stream |
-			aCollection do: [:each | 
-				stream 
-					<< each badgeCode; 
-					cr ] ]).
+	^ branch
+]
+
+{ #category : #accessing }
+ShBadgesPresenter >> branch: anObject [
+
+	branch := anObject
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> buildBadgeUrl [
+
+	^ String << [ : stream |
+		stream 
+			<< ShBadge baseUrl;
+			<< self badgesTextArea text ]
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> copySelection: aCollection [
+
+	WebBrowser openOn: self buildBadgeUrl.
+
+	Clipboard clipboardText: self buildBadgeUrl.
 	self inform: 'Copied to clipboard'
 ]
 
@@ -144,8 +174,8 @@ ShBadgesPresenter >> initializeActionBar [
 		action: [ self window close ];
 		yourself.
 	copyButton := self newButton
-		label: 'Copy'; 
-		action: [ self copySelections: self badgesList selectedItems ];
+		label: 'Get Badge'; 
+		action: [ self copySelection: self  ];
 		yourself.
 
 	toolbar := self newActionBar
@@ -159,12 +189,12 @@ ShBadgesPresenter >> initializeBadgesList [
 
 	self badgesList: self newTreeTable.
 	self badgesList
-		beMultipleSelection;
+"		beMultipleSelection;
 		addColumn: ((SpCheckBoxTableColumn evaluated: [ : badge | self badgesSelection includes: badge ])
 			onActivation: [ : badge | self badgesSelection add: badge];
 			onDeactivation: [ : badge | self badgesSelection remove: badge ];
 			width: 20;
-			yourself);
+			yourself);"
 		addColumn: (SpImageTableColumn
 			title: 'Image' 
 			evaluated: [ : badgeNode | badgeNode badgeImg asMorph ]);
@@ -172,7 +202,7 @@ ShBadgesPresenter >> initializeBadgesList [
 			title: 'Name'
 			evaluated: [ : badgeNode | badgeNode badgeName ]);
 		whenSelectedItemChangedDo: [ : item | item ifNotNil: [ self updateBadgeText ] ];
-		roots: (self badgeCollector collectBadgesAt: self selectedBadgeType).
+		roots: (self badgeCollector badgesAt: self selectedBadgeType).
 
 ]
 
@@ -202,8 +232,11 @@ ShBadgesPresenter >> initializeFocus [
 
 	self focusOrder
 		add: self badgeTypes;
+		add: self username;
+		add: self repository;
 		add: self badgesList;
-		add: self badgesTextArea
+		add: self badgesTextArea;
+		add: self toolbar
 ]
 
 { #category : #initialization }
@@ -211,11 +244,32 @@ ShBadgesPresenter >> initializePresenters [
 	" Private - See superimplementor's comment "
 
 	self 
+		initializeUserRepo;
 		initializeBadgesTypes;
 		initializeBadgesList;
 		initializeBadgesTextArea;
 		initializeActionBar;
 		initializeFocus
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> initializeUserRepo [
+
+	username := self newTextInput.
+	repository := self newTextInput.
+	branch := self newTextInput text: 'master'; yourself.
+]
+
+{ #category : #accessing }
+ShBadgesPresenter >> repository [
+
+	^ repository
+]
+
+{ #category : #accessing }
+ShBadgesPresenter >> repository: anObject [
+
+	repository := anObject
 ]
 
 { #category : #accessing }
@@ -256,7 +310,11 @@ ShBadgesPresenter >> toolbar: anObject [
 { #category : #callbacks }
 ShBadgesPresenter >> updateBadgeText [
 
-	self badgesTextArea text: self selectedBadgeItem halt
+	| text |
+	text := self selectedBadgeItem badgeCode copyReplaceAll: ':user' with: self username text.
+	text := text copyReplaceAll: ':repo' with: self repository text.
+	text := text copyReplaceAll: ':branch' with: self  branch text.
+	self badgesTextArea text: text
 ]
 
 { #category : #callbacks }
@@ -264,4 +322,16 @@ ShBadgesPresenter >> updateBadgesList [
 
 	self badgesList 
 		roots: (self badgeCollector badgesAt: self selectedBadgeType)
+]
+
+{ #category : #accessing }
+ShBadgesPresenter >> username [
+
+	^ username
+]
+
+{ #category : #accessing }
+ShBadgesPresenter >> username: anObject [
+
+	username := anObject
 ]

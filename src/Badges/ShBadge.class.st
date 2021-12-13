@@ -42,6 +42,13 @@ Class {
 	#category : #Badges
 }
 
+{ #category : #'accessing - url' }
+ShBadge class >> baseUrl [
+	" Answer a <String> with the receiver's base url "
+
+	^ 'https://img.shields.io/'
+]
+
 { #category : #'instance creation' }
 ShBadge class >> for: serviceSelector [
 	" Answer a new instance of the receiver configured for serviceSelector service "
@@ -70,13 +77,6 @@ ShBadge class >> named: nameString img: aFormOrNil [
 		badgeName: nameString;
 		badgeImg: aFormOrNil;
 		yourself
-]
-
-{ #category : #'accessing - url' }
-ShBadge >> baseUrl [
-	" Answer a <String> with the receiver's base url "
-
-	^ 'https://img.shields.io/'
 ]
 
 { #category : #printing }

@@ -110,7 +110,6 @@ ShAbstractBadgeCollection >> badgeTravisBuildStatus [
 { #category : #accessing }
 ShAbstractBadgeCollection >> badges [
 	^ badges
-		ifNil: [ badges := OrderedCollection new ]
 ]
 
 { #category : #accessing }

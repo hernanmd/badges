@@ -13,7 +13,8 @@ Class {
 	#name : #ShBadgeCollector,
 	#superclass : #Object,
 	#instVars : [
-		'badges'
+		'badges',
+		'soupTable'
 	],
 	#category : #Badges
 }
@@ -87,13 +88,19 @@ ShBadgeCollector >> collectAllBadges [
 	" Answer a <Collection> of all available <CGShieldsBadge> "
 
 	| badgesDict |
-	
 	badgesDict := Dictionary new.
-	self badgeCategories do: [ : badgeCat |
+	[ : job | 
+		job title: 'Collecting Badges'.
+		self badgeCategories doWithIndex: [ : badgeCat : index |
+			job 
+				progress: (0.1 * index); 
+				title: badgeCat printString.
 			badgesDict 
 				at: badgeCat 
-				put: (self collectBadgesAt: badgeCat asLowercase) ].
-	^ badgesDict
+				put: (self collectBadgesAt: badgeCat asLowercase).
+		] ]  asJob run.
+	^ badgesDict 
+
 ]
 
 { #category : #accessing }
@@ -153,16 +160,4 @@ ShBadgeCollector >> shieldsBaseUrl [
 ShBadgeCollector >> shieldsUrl [
 
 	^  'https://shields.io/category/'
-]
-
-{ #category : #accessing }
-ShBadgeCollector >> updateBadgesAt: categoryName [
-
-	| tmpBadges |			
-
-	tmpBadges := OrderedCollection new: 50.
-	(self selectBadgeExamplesAt: categoryName asLowercase)
-		do: [ : t | self collectBadgesFromTable: t into: tmpBadges ]
-		displayingProgress: 'Please wait while retrieving shield badges...'.
-	tmpBadges
 ]
