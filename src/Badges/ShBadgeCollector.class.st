@@ -100,9 +100,13 @@ ShBadgeCollector >> collectAllBadges [
 ShBadgeCollector >> collectBadgesAt: categoryName [
 	" Answer a <Collection> of <ShBadge> for categoryName "
 
-	^ self badges 
-		badgesAt: categoryName 
-		ifAbsent: [ self updateBadgesAt: categoryName ]
+	| tmpBadges |			
+
+	tmpBadges := OrderedCollection new: 50.
+	(self selectBadgeExamplesAt: categoryName asLowercase)
+		do: [ : t | self collectBadgesFromTable: t into: tmpBadges ]
+		displayingProgress: 'Please wait while retrieving shield badges...'.
+	^ tmpBadges
 
 ]
 
