@@ -27,20 +27,13 @@ ShBadgesPresenter class >> defaultSpec [
     ^ SpBoxLayout newLeftToRight
 			add: #badgeTypes width: 100;
 			spacing: 3;
-			add: (SpBoxLayout new
-				add: (SpGridLayout new 
-					beColumnNotHomogeneous;				
-					add: 'Username' at: 1 @ 1;
-					add: #username at: 2 @ 1;
-					add: 'Repository' at: 3 @ 1;
-					add: #repository at: 4 @ 1;
-					add: 'Branch' at: 5 @ 1;
-					add: #branch at: 6 @1;
-					yourself) height: 50;
+			add: (SpBoxLayout newTopToBottom
+				add: self repositoryLayoutSettings height: 45;
 				add: #badgesList;
 				spacing: 3;
 				add: #badgesTextArea height: 80;
-				add: #toolbar height: self toolbarHeight;
+				add: (SpBoxLayout newLeftToRight
+					add: #toolbar width: 600) height: self toolbarHeight;
 				yourself);
 			yourself
 ]
@@ -50,9 +43,33 @@ ShBadgesPresenter class >> open [
 	" Open the badges selection window "
 	<script>
 
-	ShBadgesPresenter basicNew 
+	self class basicNew 
 		initialize;
 		openWithSpec.
+]
+
+{ #category : #specs }
+ShBadgesPresenter class >> repositoryLayoutSettings [
+
+	^ SpGridLayout new 
+			beColumnNotHomogeneous;
+
+			add: (SpBoxLayout newLeftToRight
+						add: 'Username' width: 70;
+						add: #username width: 120;
+						yourself) at: 1 @ 1;
+
+			add: (SpBoxLayout newLeftToRight
+						add: 'Repository' width: 70;
+						add: #repository width: 120;
+						yourself) at: 2 @ 1;
+						
+			add: (SpBoxLayout newLeftToRight
+						add: 'Branch' width: 50;
+						add: #branch width: 120;
+						yourself) at: 3 @ 1;
+	
+			yourself
 ]
 
 { #category : #accessing }
@@ -142,6 +159,13 @@ ShBadgesPresenter >> buildBadgeUrl [
 ]
 
 { #category : #initialization }
+ShBadgesPresenter >> checkButton [
+	" Answer the receiver's <SpButtonPresenter> for the Check Badge "
+
+	^ self toolbar presenters detect: [ : btn | btn label = 'Check' ]
+]
+
+{ #category : #initialization }
 ShBadgesPresenter >> copySelection: aCollection [
 
 	WebBrowser openOn: self buildBadgeUrl.
@@ -154,7 +178,7 @@ ShBadgesPresenter >> copySelection: aCollection [
 ShBadgesPresenter >> initialExtent [
 	"Answer the initial extent for the receiver."
 	
-	^ 600 @ 400
+	^ 900 @ 600
 
 ]
 
@@ -168,19 +192,25 @@ ShBadgesPresenter >> initialize [
 { #category : #initialization }
 ShBadgesPresenter >> initializeActionBar [
 
-	| closeButton copyButton |
+	| closeButton checkButton |
 	closeButton := self newButton
-		label: 'Close';
+		label: 'Quit';
+		icon: (self iconNamed: #smallQuit);
+		help: 'Close this window';
 		action: [ self window close ];
 		yourself.
-	copyButton := self newButton
-		label: 'Get Badge'; 
+
+	checkButton := self newButton
+		label: 'Check';
+		icon: (self iconNamed: #smallRemoteOpen);
+		help: 'Open a web browser with the selected shield badge';
 		action: [ self copySelection: self  ];
+		enabled: false;
 		yourself.
 
 	toolbar := self newActionBar
 		add: closeButton;
-		add: copyButton;
+		add: checkButton;
 		yourself.
 ]
 
@@ -201,7 +231,7 @@ ShBadgesPresenter >> initializeBadgesList [
 		addColumn: (SpStringTableColumn 
 			title: 'Name'
 			evaluated: [ : badgeNode | badgeNode badgeName ]);
-		whenSelectedItemChangedDo: [ : item | item ifNotNil: [ self updateBadgeText ] ];
+		whenSelectionChangedDo: [ : item | self updateBadgeSelection: item ];
 		roots: (self badgeCollector badgesAt: self selectedBadgeType).
 
 ]
@@ -223,7 +253,9 @@ ShBadgesPresenter >> initializeBadgesTypes [
 		items: self badgesCategories asSortedCollection;
 		selectIndex: 1;
 		whenSelectionChangedDo: [ 
-			self badgeTypes selectedItem ifNotNil: [ self updateBadgesList ] ]
+			self badgeTypes selectedItem ifNotNil: [ self updateBadgesList ].
+			self checkButton disable.
+			self badgesTextArea text: String empty ]
 ]
 
 { #category : #initialization }
@@ -234,6 +266,7 @@ ShBadgesPresenter >> initializeFocus [
 		add: self badgeTypes;
 		add: self username;
 		add: self repository;
+		add: self branch;
 		add: self badgesList;
 		add: self badgesTextArea;
 		add: self toolbar
@@ -308,13 +341,25 @@ ShBadgesPresenter >> toolbar: anObject [
 ]
 
 { #category : #callbacks }
+ShBadgesPresenter >> updateBadgeSelection: item [
+
+	item 
+		ifNil: [ self checkButton ]
+		ifNotNil: [ self updateBadgeText ]
+]
+
+{ #category : #callbacks }
 ShBadgesPresenter >> updateBadgeText [
 
-	| text |
-	text := self selectedBadgeItem badgeCode copyReplaceAll: ':user' with: self username text.
-	text := text copyReplaceAll: ':repo' with: self repository text.
-	text := text copyReplaceAll: ':branch' with: self  branch text.
-	self badgesTextArea text: text
+	self selectedBadgeItem 
+		ifNotNil: [ : selectedBadge |
+			| text |
+			text := selectedBadge badgeCode copyReplaceAll: ':user' with: self username text.
+			text := text copyReplaceAll: ':repo' with: self repository text.
+			text := text copyReplaceAll: ':branch' with: self  branch text.
+			self badgesTextArea text: text.
+			
+			self checkButton enable ]
 ]
 
 { #category : #callbacks }

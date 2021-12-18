@@ -159,5 +159,8 @@ ShBadgeCollector >> shieldsBaseUrl [
 { #category : #accessing }
 ShBadgeCollector >> shieldsUrl [
 
-	^  'https://shields.io/category/'
+	^  String << [ : stream |
+			stream 
+				<< self shieldsBaseUrl;
+				<< 'category/' ]
 ]
