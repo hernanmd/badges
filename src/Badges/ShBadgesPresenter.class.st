@@ -8,7 +8,6 @@ Class {
 	#name : #ShBadgesPresenter,
 	#superclass : #SpPresenter,
 	#instVars : [
-		'badgesList',
 		'badgeTypes',
 		'badgesTextArea',
 		'toolbar',
@@ -16,7 +15,8 @@ Class {
 		'badgesSelection',
 		'username',
 		'repository',
-		'branch'
+		'branch',
+		'badgesTable'
 	],
 	#category : #Badges
 }
@@ -29,10 +29,11 @@ ShBadgesPresenter class >> defaultSpec [
 			spacing: 3;
 			add: (SpBoxLayout newTopToBottom
 				add: self repositoryLayoutSettings height: 45;
-				add: #badgesList;
+				add: #badgesTable;
 				spacing: 3;
 				add: #badgesTextArea height: 80;
 				add: (SpBoxLayout newLeftToRight
+					spacing: 3;
 					add: #toolbar width: 600) height: self toolbarHeight;
 				yourself);
 			yourself
@@ -43,7 +44,7 @@ ShBadgesPresenter class >> open [
 	" Open the badges selection window "
 	<script>
 
-	self class basicNew 
+	self basicNew 
 		initialize;
 		openWithSpec.
 ]
@@ -99,20 +100,6 @@ ShBadgesPresenter >> badgesCategories [
 ]
 
 { #category : #accessing }
-ShBadgesPresenter >> badgesList [
-	" Answer the badgesList of this CGBadgesSelector_UI "
-
-	^ badgesList
-]
-
-{ #category : #accessing }
-ShBadgesPresenter >> badgesList: anObject [
-	" Sets the badgesList of this CGBadgesSelector_UI "
-
-	badgesList := anObject
-]
-
-{ #category : #accessing }
 ShBadgesPresenter >> badgesSelection [
 	^ badgesSelection
 		ifNil: [ badgesSelection := OrderedCollection new ]
@@ -124,15 +111,29 @@ ShBadgesPresenter >> badgesSelection: anObject [
 ]
 
 { #category : #accessing }
+ShBadgesPresenter >> badgesTable [
+	" Answer the badgesList of this presenter "
+
+	^ badgesTable
+]
+
+{ #category : #accessing }
+ShBadgesPresenter >> badgesTable: anObject [
+	" Sets the badgesList of this presenter "
+
+	badgesTable := anObject
+]
+
+{ #category : #accessing }
 ShBadgesPresenter >> badgesTextArea [
-	" Answer the badgesTextArea of this CGBadgesSelector_UI "
+	" Answer the badgesTextArea of this presenter "
 
 	^ badgesTextArea
 ]
 
 { #category : #accessing }
 ShBadgesPresenter >> badgesTextArea: anObject [
-	" Sets the badgesTextArea of this CGBadgesSelector_UI "
+	" Sets the badgesTextArea of this presenter "
 
 	badgesTextArea := anObject
 ]
@@ -149,6 +150,29 @@ ShBadgesPresenter >> branch: anObject [
 	branch := anObject
 ]
 
+{ #category : #callbacks }
+ShBadgesPresenter >> buildBadgeMDText [
+	" Answer a <String> formatted for describing a URL link in Markdown format "
+	
+	^ self selectedBadgeItem badgeName 
+	
+]
+
+{ #category : #callbacks }
+ShBadgesPresenter >> buildBadgeMDUrl: text [
+	" Answer a <String> with the text in Markdown format to be pasted in a README file "
+
+	^ String << [ : stream |
+		stream
+			<< $[;
+			<< self buildBadgeMDText;
+			<< $];
+			<< $(;
+			<< ShBadge baseUrl;
+			<< text;
+			<< $) ]
+]
+
 { #category : #initialization }
 ShBadgesPresenter >> buildBadgeUrl [
 
@@ -158,17 +182,31 @@ ShBadgesPresenter >> buildBadgeUrl [
 			<< self badgesTextArea text ]
 ]
 
-{ #category : #initialization }
+{ #category : #accessing }
 ShBadgesPresenter >> checkButton [
 	" Answer the receiver's <SpButtonPresenter> for the Check Badge "
 
 	^ self toolbar presenters detect: [ : btn | btn label = 'Check' ]
 ]
 
-{ #category : #initialization }
-ShBadgesPresenter >> copySelection: aCollection [
+{ #category : #callbacks }
+ShBadgesPresenter >> checkSelectedBadge [
+	" Private - Callback for Check button "
 
 	WebBrowser openOn: self buildBadgeUrl.
+	self copySelectedBadge.
+]
+
+{ #category : #accessing }
+ShBadgesPresenter >> copyButton [
+	" Answer the receiver's <SpButtonPresenter> for the Copy Badge "
+
+	^ self toolbar presenters detect: [ : btn | btn label = 'Copy' ]
+]
+
+{ #category : #callbacks }
+ShBadgesPresenter >> copySelectedBadge [
+	" Private - Callback for Copy badge Markdown button "
 
 	Clipboard clipboardText: self buildBadgeUrl.
 	self inform: 'Copied to clipboard'
@@ -192,33 +230,25 @@ ShBadgesPresenter >> initialize [
 { #category : #initialization }
 ShBadgesPresenter >> initializeActionBar [
 
-	| closeButton checkButton |
-	closeButton := self newButton
-		label: 'Quit';
-		icon: (self iconNamed: #smallQuit);
-		help: 'Close this window';
-		action: [ self window close ];
-		yourself.
-
-	checkButton := self newButton
-		label: 'Check';
-		icon: (self iconNamed: #smallRemoteOpen);
-		help: 'Open a web browser with the selected shield badge';
-		action: [ self copySelection: self  ];
-		enabled: false;
-		yourself.
+	| closeButton checkButton copyButton |
+	closeButton := self newCloseButton.
+	checkButton := self newCheckButton.
+	copyButton := self newCopyButton.
 
 	toolbar := self newActionBar
-		add: closeButton;
-		add: checkButton;
-		yourself.
+					add: closeButton;
+					add: checkButton;
+					add: copyButton;
+					yourself
 ]
 
 { #category : #initialization }
-ShBadgesPresenter >> initializeBadgesList [
+ShBadgesPresenter >> initializeBadgesTable [
 
-	self badgesList: self newTreeTable.
-	self badgesList
+	self badgesTable: self newTreeTable.
+	self badgesTable
+		beResizable;
+		searchMatching: [ :item :textToSearch | self searchItem: item text: textToSearch ];		
 "		beMultipleSelection;
 		addColumn: ((SpCheckBoxTableColumn evaluated: [ : badge | self badgesSelection includes: badge ])
 			onActivation: [ : badge | self badgesSelection add: badge];
@@ -255,6 +285,7 @@ ShBadgesPresenter >> initializeBadgesTypes [
 		whenSelectionChangedDo: [ 
 			self badgeTypes selectedItem ifNotNil: [ self updateBadgesList ].
 			self checkButton disable.
+			self copyButton disable.
 			self badgesTextArea text: String empty ]
 ]
 
@@ -267,7 +298,7 @@ ShBadgesPresenter >> initializeFocus [
 		add: self username;
 		add: self repository;
 		add: self branch;
-		add: self badgesList;
+		add: self badgesTable;
 		add: self badgesTextArea;
 		add: self toolbar
 ]
@@ -279,7 +310,7 @@ ShBadgesPresenter >> initializePresenters [
 	self 
 		initializeUserRepo;
 		initializeBadgesTypes;
-		initializeBadgesList;
+		initializeBadgesTable;
 		initializeBadgesTextArea;
 		initializeActionBar;
 		initializeFocus
@@ -288,9 +319,50 @@ ShBadgesPresenter >> initializePresenters [
 { #category : #initialization }
 ShBadgesPresenter >> initializeUserRepo [
 
-	username := self newTextInput.
-	repository := self newTextInput.
+	username := self newTextInput
+		placeholder: 'Enter your username';
+		whenTextChangedDo: [ self updateBadgeText ];
+		autoAccept: true.
+	repository := self newTextInput
+		placeholder: 'Enter the repository name';
+		whenTextChangedDo: [ self updateBadgeText ];
+		autoAccept: true.
 	branch := self newTextInput text: 'master'; yourself.
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> newCheckButton [
+
+	^ self newButton
+		  label: 'Check';
+		  icon: (self iconNamed: #smallRemoteOpen);
+		  help: 'Open a web browser with the selected shield badge';
+		  action: [ self checkSelectedBadge ];
+		  enabled: false;
+		  yourself
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> newCloseButton [
+
+	^ self newButton
+		  label: 'Quit';
+		  icon: (self iconNamed: #smallQuit);
+		  help: 'Close this window';
+		  action: [ self window close ];
+		  yourself
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> newCopyButton [
+
+	^ self newButton
+		  label: 'Copy';
+		  icon: (self iconNamed: #smallCopy);
+		  help: 'Copy the Markdown text of the selected shield badge';
+		  action: [ self copySelectedBadge ];
+		  enabled: false;
+		  yourself
 ]
 
 { #category : #accessing }
@@ -305,11 +377,17 @@ ShBadgesPresenter >> repository: anObject [
 	repository := anObject
 ]
 
+{ #category : #initialization }
+ShBadgesPresenter >> searchItem: item text: textToSearch [
+
+	^ item badgeName asLowercase beginsWith: textToSearch asLowercase 
+]
+
 { #category : #accessing }
 ShBadgesPresenter >> selectedBadgeItem [
 	" Answer the currently selected badge type <String> "
 
-	^ self badgesList selectedItem
+	^ self badgesTable selectedItem
 ]
 
 { #category : #accessing }
@@ -357,15 +435,16 @@ ShBadgesPresenter >> updateBadgeText [
 			text := selectedBadge badgeCode copyReplaceAll: ':user' with: self username text.
 			text := text copyReplaceAll: ':repo' with: self repository text.
 			text := text copyReplaceAll: ':branch' with: self  branch text.
-			self badgesTextArea text: text.
+			self badgesTextArea text: (self buildBadgeMDUrl: text).
 			
+			self copyButton enable.
 			self checkButton enable ]
 ]
 
 { #category : #callbacks }
 ShBadgesPresenter >> updateBadgesList [
 
-	self badgesList 
+	self badgesTable 
 		roots: (self badgeCollector badgesAt: self selectedBadgeType)
 ]
 

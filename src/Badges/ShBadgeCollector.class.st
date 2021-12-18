@@ -76,7 +76,7 @@ ShBadgeCollector >> buildPngURLString: aString [
 
 	^ String << [ : stream |
 			stream 
-				<< self shieldsBaseUrl;
+				<< ShBadge baseUrl;
 				<< (((aString copyWithoutAll: '"') withoutPrefix: '/') withoutSuffix: '/');
 				<< '.png' ]
 			
@@ -151,16 +151,10 @@ ShBadgeCollector >> selectBadgeExamplesAt: categoryName [
 ]
 
 { #category : #accessing }
-ShBadgeCollector >> shieldsBaseUrl [
-
-	^  'https://shields.io/'
-]
-
-{ #category : #accessing }
 ShBadgeCollector >> shieldsUrl [
 
 	^  String << [ : stream |
 			stream 
-				<< self shieldsBaseUrl;
+				<< ShBadge baseUrl;
 				<< 'category/' ]
 ]

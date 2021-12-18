@@ -1,6 +1,12 @@
+"
+Wrapper for serializing and materializing shields, currently in FUEL format.
+"
 Class {
 	#name : #ShBadgeCollection,
-	#superclass : #ShAbstractBadgeCollection,
+	#superclass : #Object,
+	#instVars : [
+		'badges'
+	],
 	#category : #Badges
 }
 
@@ -10,6 +16,16 @@ ShBadgeCollection class >> new [
 	^ super new 
 		initializeBadges;
 		yourself
+]
+
+{ #category : #accessing }
+ShBadgeCollection >> badges [
+	^ badges
+]
+
+{ #category : #accessing }
+ShBadgeCollection >> badges: anObject [
+	badges := anObject
 ]
 
 { #category : #accessing }
