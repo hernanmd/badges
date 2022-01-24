@@ -12,7 +12,7 @@ BaselineOfBadges >> baseline: spec [
 		do: [ 
 			self soup: spec.
 			spec 
-				package: 'Badges';
+				package: 'Badges'			with: [ spec requires: #(Soup) ];
 				package: 'Badges-Tests'	with: [ spec requires: #(Badges) ].
 			spec 
 				group: 'Core' 						with: #('Badges');
