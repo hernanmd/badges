@@ -42,49 +42,9 @@ Class {
 	#category : #Badges
 }
 
-{ #category : #'instance creation' }
-ShBadge class >> for: serviceSelector [
-	" Answer a new instance of the receiver configured for serviceSelector service "
-
-	^ self new
-		service: serviceSelector uncapitalized;
-		yourself.
-]
-
-{ #category : #'instance creation' }
-ShBadge class >> named: nameString code: codeString img: aFormOrNil [
-	" Answer a new instance receiver with nameString as name and imgStringOrNil as the representative image "
-
-	^ self new
-		badgeName: nameString;
-		badgeCode: codeString;
-		badgeImg: aFormOrNil;
-		yourself
-]
-
-{ #category : #'instance creation' }
-ShBadge class >> named: nameString img: aFormOrNil [
-	" Answer a new instance receiver with nameString as name and imgStringOrNil as the representative image "
-
-	^ self new
-		badgeName: nameString;
-		badgeImg: aFormOrNil;
-		yourself
-]
-
 { #category : #'accessing - url' }
-ShBadge >> baseUrl [
+ShBadge class >> baseUrl [
 	" Answer a <String> with the receiver's base url "
 
 	^ 'https://img.shields.io/'
-]
-
-{ #category : #printing }
-ShBadge >> printOn: aStream [
-	" Private - See superimplementor's comment "
-	
-	aStream 	
-		<< $(
-		<< badgeName asString
-		<< $) 
 ]
