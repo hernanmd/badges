@@ -12,7 +12,6 @@ Class {
 		'badgesTextArea',
 		'toolbar',
 		'badgesCollector',
-		'badgesSelection',
 		'username',
 		'repository',
 		'branch',
@@ -28,7 +27,6 @@ ShBadgesPresenter class >> defaultSpec [
 			add: #badgeTypes width: 100;
 			spacing: 3;
 			add: (SpBoxLayout newTopToBottom
-				add: self repositoryLayoutSettings height: 45;
 				add: #badgesTable;
 				spacing: 3;
 				add: #badgesTextArea height: 80;
@@ -36,6 +34,8 @@ ShBadgesPresenter class >> defaultSpec [
 					spacing: 3;
 					add: #toolbar width: 600) height: self toolbarHeight;
 				yourself);
+			spacing: 1;
+			add: self repositoryLayoutSettings;			
 			yourself
 ]
 
@@ -53,7 +53,6 @@ ShBadgesPresenter class >> open [
 ShBadgesPresenter class >> repositoryLayoutSettings [
 
 	^ SpGridLayout new 
-			beColumnNotHomogeneous;
 
 			add: (SpBoxLayout newLeftToRight
 						add: 'Username' width: 70;
@@ -63,12 +62,12 @@ ShBadgesPresenter class >> repositoryLayoutSettings [
 			add: (SpBoxLayout newLeftToRight
 						add: 'Repository' width: 70;
 						add: #repository width: 120;
-						yourself) at: 2 @ 1;
+						yourself) at: 1 @ 2;
 						
 			add: (SpBoxLayout newLeftToRight
 						add: 'Branch' width: 50;
 						add: #branch width: 120;
-						yourself) at: 3 @ 1;
+						yourself) at: 1 @ 3;
 	
 			yourself
 ]
@@ -97,17 +96,6 @@ ShBadgesPresenter >> badgesCategories [
 	" See comment in shields collector #badgeCategories "
 
 	^ self badgeCollector badgeCategories
-]
-
-{ #category : #accessing }
-ShBadgesPresenter >> badgesSelection [
-	^ badgesSelection
-		ifNil: [ badgesSelection := OrderedCollection new ]
-]
-
-{ #category : #accessing }
-ShBadgesPresenter >> badgesSelection: anObject [
-	badgesSelection := anObject
 ]
 
 { #category : #accessing }
@@ -179,7 +167,7 @@ ShBadgesPresenter >> buildBadgeUrl [
 	^ String << [ : stream |
 		stream 
 			<< ShBadge baseUrl;
-			<< self badgesTextArea text ]
+			<< self selectedBadgeItem badgeCode ]
 ]
 
 { #category : #accessing }

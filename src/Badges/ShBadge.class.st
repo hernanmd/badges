@@ -46,5 +46,5 @@ Class {
 ShBadge class >> baseUrl [
 	" Answer a <String> with the receiver's base url "
 
-	^ 'https://img.shields.io/'
+	^ 'https://img.shields.io'
 ]
