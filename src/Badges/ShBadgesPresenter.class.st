@@ -20,8 +20,8 @@ Class {
 	#category : #Badges
 }
 
-{ #category : #specs }
-ShBadgesPresenter class >> defaultSpec [
+{ #category : #layout }
+ShBadgesPresenter class >> defaultLayout [
     <spec>
     ^ SpBoxLayout newLeftToRight
 			add: #badgeTypes width: 100;
@@ -150,7 +150,7 @@ ShBadgesPresenter >> buildBadgeMDText [
 ShBadgesPresenter >> buildBadgeMDUrl: text [
 	" Answer a <String> with the text in Markdown format to be pasted in a README file "
 
-	^ String << [ : stream |
+	^ String streamContents: [ : stream |
 		stream
 			<< $[;
 			<< self buildBadgeMDText;
