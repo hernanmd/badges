@@ -35,7 +35,7 @@ BaselineOfBadges >> platformFilesUrl [
 
 	^ Array with: (String streamContents: [ : stream |		
 		stream
-			nextPutAll: 'https://github.com/hernanmd/shield-badges/blob/master/res/shields.zip' ])
+			nextPutAll: 'https://github.com/hernanmd/shield-badges/raw/master/res/shields.zip' ])
 	
 ]
 
