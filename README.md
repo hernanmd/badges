@@ -14,7 +14,6 @@
 
 # Installation
 
-[//]: # (pi)
 ```smalltalk
 EpMonitor disableDuring: [ 
 	Metacello new	
@@ -26,6 +25,7 @@ EpMonitor disableDuring: [
 ## Baseline String 
 
 If you want to add the Badges to your Metacello Baselines or Configurations, copy and paste the following expression:
+
 ```smalltalk
 	" ... "
 	spec
@@ -70,7 +70,7 @@ Thus, it should be safe to depend on a fixed major version and moving minor vers
 	
 This software is licensed under the MIT License.
 
-Copyright Hernán Morales Durand, 2021.
+Copyright Hernán Morales Durand, 2022.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
