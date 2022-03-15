@@ -10,6 +10,7 @@ BaselineOfBadges >> baseline: spec [
 	spec
 		for: #(common)
 		do: [ 
+			spec preLoadDoIt: #preLoad.	
 			self soup: spec.
 			spec 
 				package: 'Badges'			with: [ spec requires: #(Soup) ];
@@ -17,7 +18,31 @@ BaselineOfBadges >> baseline: spec [
 			spec 
 				group: 'Core' 						with: #('Badges');
 				group: 'Tests' 						with: #('Badges' 'Badges-Tests');
-				group: 'default' 					with: #('Core' 'Tests') ]
+				group: 'default' 					with: #('Core') ]
+]
+
+{ #category : #preloading }
+BaselineOfBadges >> ensureMetacelloFileDownload [
+   
+	Metacello new           
+		baseline: 'MetacelloFileDownload';              
+		repository: 'github://hernanmd/MetacelloFileDownload';          
+		load.
+]
+
+{ #category : #preloading }
+BaselineOfBadges >> platformFilesUrl [
+
+	^ Array with: (String streamContents: [ : stream |		
+		stream
+			nextPutAll: 'https://github.com/hernanmd/shield-badges/raw/master/res/shields.zip' ])
+]
+
+{ #category : #preloading }
+BaselineOfBadges >> preLoad [
+
+	self ensureMetacelloFileDownload.
+	super preLoad.
 ]
 
 { #category : #baselines }
