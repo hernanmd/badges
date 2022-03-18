@@ -18,5 +18,5 @@ ShBadgesApp class >> menuCommandOn: aBuilder [
 ShBadgesApp >> start [
 	" Private - See superimplementor's comment "
 
-	(ShBadgesPresenter newApplication: self) openWithSpec.
+	(ShBadgesPresenter newApplication: self) open.
 ]

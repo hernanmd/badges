@@ -20,6 +20,25 @@ Class {
 	#category : #Badges
 }
 
+{ #category : #layout }
+ShBadgesPresenter class >> defaultLayout [
+    <spec>
+    ^ SpBoxLayout newLeftToRight
+			add: #badgeTypes width: 100;
+			spacing: 3;
+			add: (SpBoxLayout newTopToBottom
+				add: #badgesTable;
+				spacing: 3;
+				add: #badgesTextArea height: 80;
+				add: (SpBoxLayout newLeftToRight
+					spacing: 3;
+					add: #toolbar width: 600) height: self toolbarHeight;
+				yourself);
+			spacing: 1;
+			add: self repositoryLayoutSettings;			
+			yourself
+]
+
 { #category : #'instance creation' }
 ShBadgesPresenter class >> open [
 	" Open the badges selection window "
@@ -108,7 +127,7 @@ ShBadgesPresenter >> buildBadgeMDText [
 ShBadgesPresenter >> buildBadgeMDUrl: text [
 	" Answer a <String> with the text in Markdown format to be pasted in a README file "
 
-	^ String << [ : stream |
+	^ String streamContents: [ : stream |
 		stream
 			<< $[;
 			<< self buildBadgeMDText;

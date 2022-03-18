@@ -35,7 +35,7 @@ BaselineOfBadges >> platformFilesUrl [
 
 	^ Array with: (String streamContents: [ : stream |		
 		stream
-			nextPutAll: 'https://github.com/hernanmd/shield-badges/blob/master/res/shields.zip' ])
+			nextPutAll: 'https://github.com/hernanmd/shield-badges/raw/master/res/shields.zip' ])
 	
 ]
 
@@ -51,5 +51,7 @@ BaselineOfBadges >> soup: spec [
 
 	spec 
 		baseline: 'Soup'
-		with: [ spec repository: 'github://seandenigris/Soup-for-Pharo/repository' ]
+		with: [ spec 
+			repository: 'github://seandenigris/Soup-for-Pharo/repository';
+			loads: 'Core' ]
 ]

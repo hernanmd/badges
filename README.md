@@ -7,7 +7,6 @@
 - [Description](#description)
 - [Installation](#installation)
   - [Baseline String](#baseline-string)
-- [Implementation notes](#implementation-note)
 - [Contribute](#contribute)
   - [Version management](#version-management)
 - [License](#license)
@@ -18,6 +17,7 @@
 EpMonitor disableDuring: [ 
 	Metacello new	
 		baseline: 'Badges';	
+		onWarningLog;
 		repository: 'github://hernanmd/shield-badges/src';	
 		load ].
 ```
