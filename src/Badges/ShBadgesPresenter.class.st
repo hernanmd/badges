@@ -20,25 +20,6 @@ Class {
 	#category : #Badges
 }
 
-{ #category : #specs }
-ShBadgesPresenter class >> defaultSpec [
-    <spec>
-    ^ SpBoxLayout newLeftToRight
-			add: #badgeTypes width: 100;
-			spacing: 3;
-			add: (SpBoxLayout newTopToBottom
-				add: #badgesTable;
-				spacing: 3;
-				add: #badgesTextArea height: 80;
-				add: (SpBoxLayout newLeftToRight
-					spacing: 3;
-					add: #toolbar width: 600) height: self toolbarHeight;
-				yourself);
-			spacing: 1;
-			add: self repositoryLayoutSettings;			
-			yourself
-]
-
 { #category : #'instance creation' }
 ShBadgesPresenter class >> open [
 	" Open the badges selection window "
@@ -47,29 +28,6 @@ ShBadgesPresenter class >> open [
 	self basicNew 
 		initialize;
 		openWithSpec.
-]
-
-{ #category : #specs }
-ShBadgesPresenter class >> repositoryLayoutSettings [
-
-	^ SpGridLayout new 
-
-			add: (SpBoxLayout newLeftToRight
-						add: 'Username' width: 70;
-						add: #username width: 120;
-						yourself) at: 1 @ 1;
-
-			add: (SpBoxLayout newLeftToRight
-						add: 'Repository' width: 70;
-						add: #repository width: 120;
-						yourself) at: 1 @ 2;
-						
-			add: (SpBoxLayout newLeftToRight
-						add: 'Branch' width: 50;
-						add: #branch width: 120;
-						yourself) at: 1 @ 3;
-	
-			yourself
 ]
 
 { #category : #accessing }
@@ -198,6 +156,25 @@ ShBadgesPresenter >> copySelectedBadge [
 
 	Clipboard clipboardText: self buildBadgeUrl.
 	self inform: 'Copied to clipboard'
+]
+
+{ #category : #specs }
+ShBadgesPresenter >> defaultLayout [
+    <spec>
+    ^ SpBoxLayout newLeftToRight
+			add: #badgeTypes width: 100;
+			spacing: 3;
+			add: (SpBoxLayout newTopToBottom
+				add: #badgesTable;
+				spacing: 3;
+				add: #badgesTextArea height: 80;
+				add: (SpBoxLayout newLeftToRight
+					spacing: 3;
+					add: #toolbar width: 600) height: self toolbarHeight;
+				yourself);
+			spacing: 1;
+			add: self repositoryLayoutSettings;			
+			yourself
 ]
 
 { #category : #initialization }
@@ -363,6 +340,29 @@ ShBadgesPresenter >> repository [
 ShBadgesPresenter >> repository: anObject [
 
 	repository := anObject
+]
+
+{ #category : #specs }
+ShBadgesPresenter >> repositoryLayoutSettings [
+
+	^ SpGridLayout new 
+
+			add: (SpBoxLayout newLeftToRight
+						add: 'Username' width: 70;
+						add: #username width: 120;
+						yourself) at: 1 @ 1;
+
+			add: (SpBoxLayout newLeftToRight
+						add: 'Repository' width: 70;
+						add: #repository width: 120;
+						yourself) at: 1 @ 2;
+						
+			add: (SpBoxLayout newLeftToRight
+						add: 'Branch' width: 50;
+						add: #branch width: 120;
+						yourself) at: 1 @ 3;
+	
+			yourself
 ]
 
 { #category : #initialization }
