@@ -9,11 +9,12 @@ Class {
 	#superclass : #SpPresenter,
 	#instVars : [
 		'badgeTypes',
-		'badgesTextArea',
 		'toolbar',
 		'badgesCollector',
 		'badgesTable',
-		'variablesTable'
+		'variablesTable',
+		'badgesTextSource',
+		'badgesTextTarget'
 	],
 	#category : #Badges
 }
@@ -69,17 +70,16 @@ ShBadgesPresenter >> badgesTable: anObject [
 ]
 
 { #category : #accessing }
-ShBadgesPresenter >> badgesTextArea [
+ShBadgesPresenter >> badgesTextSource [
 	" Answer the badgesTextArea of this presenter "
 
-	^ badgesTextArea
+	^ badgesTextSource
 ]
 
 { #category : #accessing }
-ShBadgesPresenter >> badgesTextArea: anObject [
-	" Sets the badgesTextArea of this presenter "
+ShBadgesPresenter >> badgesTextTarget [
 
-	badgesTextArea := anObject
+	^ badgesTextTarget
 ]
 
 { #category : #callbacks }
@@ -214,10 +214,10 @@ ShBadgesPresenter >> initializeBadgesTable [
 ]
 
 { #category : #initialization }
-ShBadgesPresenter >> initializeBadgesTextArea [
+ShBadgesPresenter >> initializeBadgesTextSource [
 		
-	badgesTextArea := self newText.
-	badgesTextArea 
+	badgesTextSource := self newText.
+	badgesTextSource 
 		beNotEditable
 ]
 
@@ -233,7 +233,7 @@ ShBadgesPresenter >> initializeBadgesTypes [
 			self badgeTypes selectedItem ifNotNil: [ self updateBadgesList ].
 			self checkButton disable.
 			self copyButton disable.
-			self badgesTextArea text: String empty ]
+			self badgesTextSource text: String empty ]
 ]
 
 { #category : #initialization }
@@ -243,7 +243,7 @@ ShBadgesPresenter >> initializeFocus [
 	self focusOrder
 		add: self badgeTypes;
 		add: self badgesTable;
-		add: self badgesTextArea;
+		add: self badgesTextSource;
 		add: variablesTable;
 		add: self toolbar
 ]
@@ -263,7 +263,8 @@ ShBadgesPresenter >> initializeLayout [
 					add: #variablesTable;
 					yourself);
 				yourself);
-			add: #badgesTextArea height: 100;
+			add: #badgesTextSource height: 50;
+			add: #badgesTextTarget height: 50;
 			spacing: 4;
 			add: self toolbarLayout height: self class toolbarHeight;				
 			yourself);
@@ -277,7 +278,8 @@ ShBadgesPresenter >> initializePresenters [
 	self 
 		initializeBadgesTypes;
 		initializeBadgesTable;
-		initializeBadgesTextArea;
+		initializeBadgesTextSource;
+		initilizeBadgesTextTarget;
 		initializeVariablesPane;
 		initializeActionBar;
 		initializeFocus;
@@ -294,10 +296,25 @@ ShBadgesPresenter >> initializeVariablesPane [
 			title: 'Value';
 			evaluated: #value;
 			beEditable;
-			onAcceptEdition: [: v : t | ]);
+			onAcceptEdition: [: assoc : textField | 
+				self application badgeUserVariablesAt: assoc key put: textField text ]);
 		showColumnHeaders;
-		"items: self model elements;"
 		beResizable.
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> initilizeBadgesTextSource [
+		
+	badgesTextSource := self newText.
+	badgesTextSource beNotEditable
+
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> initilizeBadgesTextTarget [
+		
+	badgesTextTarget := self newText.
+
 ]
 
 { #category : #private }
@@ -392,7 +409,7 @@ ShBadgesPresenter >> updateBadgePanes [
 		ifNotNil: [ : selectedBadge |
 			| badgeText |
 			badgeText := selectedBadge badgeCode.
-			self badgesTextArea text: (self buildBadgeMDUrl: badgeText).
+			self badgesTextSource text: (self buildBadgeMDUrl: badgeText).
 			variablesTable items: (self collectBadgeVariables: badgeText).
 		
 			self copyButton enable.

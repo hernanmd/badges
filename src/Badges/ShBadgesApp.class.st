@@ -33,6 +33,14 @@ ShBadgesApp >> badgeUserVariablesAt: aVariableName ifAbsent: aBlock [
 ]
 
 { #category : #accessing }
+ShBadgesApp >> badgeUserVariablesAt: aVariableName put: aString [
+
+	^ self badgeUserVariables 
+		at: aVariableName
+		put: aString
+]
+
+{ #category : #accessing }
 ShBadgesApp >> start [
 	" Private - See superimplementor's comment "
 
