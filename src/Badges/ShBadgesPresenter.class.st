@@ -12,32 +12,11 @@ Class {
 		'badgesTextArea',
 		'toolbar',
 		'badgesCollector',
-		'username',
-		'repository',
-		'branch',
-		'badgesTable'
+		'badgesTable',
+		'variablesTable'
 	],
 	#category : #Badges
 }
-
-{ #category : #layout }
-ShBadgesPresenter class >> defaultLayout [
-    <spec>
-    ^ SpBoxLayout newLeftToRight
-			add: #badgeTypes width: 100;
-			spacing: 3;
-			add: (SpBoxLayout newTopToBottom
-				add: #badgesTable;
-				spacing: 3;
-				add: #badgesTextArea height: 80;
-				add: (SpBoxLayout newLeftToRight
-					spacing: 3;
-					add: #toolbar width: 600) height: self toolbarHeight;
-				yourself);
-			spacing: 1;
-			add: self repositoryLayoutSettings;			
-			yourself
-]
 
 { #category : #'instance creation' }
 ShBadgesPresenter class >> open [
@@ -103,18 +82,6 @@ ShBadgesPresenter >> badgesTextArea: anObject [
 	badgesTextArea := anObject
 ]
 
-{ #category : #accessing }
-ShBadgesPresenter >> branch [
-
-	^ branch
-]
-
-{ #category : #accessing }
-ShBadgesPresenter >> branch: anObject [
-
-	branch := anObject
-]
-
 { #category : #callbacks }
 ShBadgesPresenter >> buildBadgeMDText [
 	" Answer a <String> formatted for describing a URL link in Markdown format "
@@ -141,7 +108,7 @@ ShBadgesPresenter >> buildBadgeMDUrl: text [
 { #category : #initialization }
 ShBadgesPresenter >> buildBadgeUrl [
 
-	^ String << [ : stream |
+	^ String streamContents: [ : stream |
 		stream 
 			<< ShBadge baseUrl;
 			<< self selectedBadgeItem badgeCode ]
@@ -162,6 +129,21 @@ ShBadgesPresenter >> checkSelectedBadge [
 	self copySelectedBadge.
 ]
 
+{ #category : #private }
+ShBadgesPresenter >> collectBadgeVariables: aString [ 
+	"Parse aString and extract variables. Answer a <Collection> of <Association>"
+
+	| tmpVarTable vars |
+	tmpVarTable := OrderedCollection new.
+	vars := (aString findTokens: '/') 
+		select: [ : c | c beginsWith: ':' ] 
+		thenCollect: #allButFirst.
+	vars
+		collect: [ : varName | varName copyUpToAny: { $* . $? . $+ }  ]
+		thenDo: [ : varName | tmpVarTable add: (varName -> (self valueFor: varName)) ].
+	^ tmpVarTable
+]
+
 { #category : #accessing }
 ShBadgesPresenter >> copyButton [
 	" Answer the receiver's <SpButtonPresenter> for the Copy Badge "
@@ -175,25 +157,6 @@ ShBadgesPresenter >> copySelectedBadge [
 
 	Clipboard clipboardText: self buildBadgeUrl.
 	self inform: 'Copied to clipboard'
-]
-
-{ #category : #specs }
-ShBadgesPresenter >> defaultLayout [
-    <spec>
-    ^ SpBoxLayout newLeftToRight
-			add: #badgeTypes width: 100;
-			spacing: 3;
-			add: (SpBoxLayout newTopToBottom
-				add: #badgesTable;
-				spacing: 3;
-				add: #badgesTextArea height: 80;
-				add: (SpBoxLayout newLeftToRight
-					spacing: 3;
-					add: #toolbar width: 600) height: self toolbarHeight;
-				yourself);
-			spacing: 1;
-			add: self repositoryLayoutSettings;			
-			yourself
 ]
 
 { #category : #initialization }
@@ -220,10 +183,10 @@ ShBadgesPresenter >> initializeActionBar [
 	copyButton := self newCopyButton.
 
 	toolbar := self newActionBar
-					add: closeButton;
-					add: checkButton;
-					add: copyButton;
-					yourself
+		add: closeButton;
+		add: checkButton;
+		add: copyButton;
+		yourself
 ]
 
 { #category : #initialization }
@@ -279,12 +242,32 @@ ShBadgesPresenter >> initializeFocus [
 
 	self focusOrder
 		add: self badgeTypes;
-		add: self username;
-		add: self repository;
-		add: self branch;
 		add: self badgesTable;
 		add: self badgesTextArea;
+		add: variablesTable;
 		add: self toolbar
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> initializeLayout [
+
+	self layout: (SpPanedLayout newLeftToRight
+		positionOfSlider: 0.2;
+		add: #badgeTypes;
+		add: (SpBoxLayout newTopToBottom 
+			add: (	SpPanedLayout newLeftToRight
+				positionOfSlider: 0.7;
+				add: #badgesTable;
+				add: (SpBoxLayout newTopToBottom
+					add: 'Badge variables' expand: false;
+					add: #variablesTable;
+					yourself);
+				yourself);
+			add: #badgesTextArea height: 100;
+			spacing: 4;
+			add: self toolbarLayout height: self class toolbarHeight;				
+			yourself);
+		yourself)
 ]
 
 { #category : #initialization }
@@ -292,29 +275,32 @@ ShBadgesPresenter >> initializePresenters [
 	" Private - See superimplementor's comment "
 
 	self 
-		initializeUserRepo;
 		initializeBadgesTypes;
 		initializeBadgesTable;
 		initializeBadgesTextArea;
+		initializeVariablesPane;
 		initializeActionBar;
-		initializeFocus
+		initializeFocus;
+		initializeLayout.
 ]
 
 { #category : #initialization }
-ShBadgesPresenter >> initializeUserRepo [
+ShBadgesPresenter >> initializeVariablesPane [
 
-	username := self newTextInput
-		placeholder: 'Enter your username';
-		whenTextChangedDo: [ self updateBadgeText ];
-		autoAccept: true.
-	repository := self newTextInput
-		placeholder: 'Enter the repository name';
-		whenTextChangedDo: [ self updateBadgeText ];
-		autoAccept: true.
-	branch := self newTextInput text: 'master'; yourself.
+	variablesTable := self newTable.
+	variablesTable
+		addColumn: (SpStringTableColumn title: 'Name' evaluated: #key) beSortable;
+		addColumn: (SpStringTableColumn new 
+			title: 'Value';
+			evaluated: #value;
+			beEditable;
+			onAcceptEdition: [: v : t | ]);
+		showColumnHeaders;
+		"items: self model elements;"
+		beResizable.
 ]
 
-{ #category : #initialization }
+{ #category : #private }
 ShBadgesPresenter >> newCheckButton [
 
 	^ self newButton
@@ -326,7 +312,7 @@ ShBadgesPresenter >> newCheckButton [
 		  yourself
 ]
 
-{ #category : #initialization }
+{ #category : #private }
 ShBadgesPresenter >> newCloseButton [
 
 	^ self newButton
@@ -337,7 +323,7 @@ ShBadgesPresenter >> newCloseButton [
 		  yourself
 ]
 
-{ #category : #initialization }
+{ #category : #private }
 ShBadgesPresenter >> newCopyButton [
 
 	^ self newButton
@@ -347,41 +333,6 @@ ShBadgesPresenter >> newCopyButton [
 		  action: [ self copySelectedBadge ];
 		  enabled: false;
 		  yourself
-]
-
-{ #category : #accessing }
-ShBadgesPresenter >> repository [
-
-	^ repository
-]
-
-{ #category : #accessing }
-ShBadgesPresenter >> repository: anObject [
-
-	repository := anObject
-]
-
-{ #category : #specs }
-ShBadgesPresenter >> repositoryLayoutSettings [
-
-	^ SpGridLayout new 
-
-			add: (SpBoxLayout newLeftToRight
-						add: 'Username' width: 70;
-						add: #username width: 120;
-						yourself) at: 1 @ 1;
-
-			add: (SpBoxLayout newLeftToRight
-						add: 'Repository' width: 70;
-						add: #repository width: 120;
-						yourself) at: 1 @ 2;
-						
-			add: (SpBoxLayout newLeftToRight
-						add: 'Branch' width: 50;
-						add: #branch width: 120;
-						yourself) at: 1 @ 3;
-	
-			yourself
 ]
 
 { #category : #initialization }
@@ -425,27 +376,35 @@ ShBadgesPresenter >> toolbar: anObject [
 	toolbar := anObject
 ]
 
+{ #category : #initialization }
+ShBadgesPresenter >> toolbarLayout [
+
+	^ SpBoxLayout newLeftToRight
+		spacing: 3;
+		add: #toolbar width: 600;
+		yourself
+]
+
+{ #category : #callbacks }
+ShBadgesPresenter >> updateBadgePanes [
+
+	self selectedBadgeItem 
+		ifNotNil: [ : selectedBadge |
+			| badgeText |
+			badgeText := selectedBadge badgeCode.
+			self badgesTextArea text: (self buildBadgeMDUrl: badgeText).
+			variablesTable items: (self collectBadgeVariables: badgeText).
+		
+			self copyButton enable.
+			self checkButton enable ]
+]
+
 { #category : #callbacks }
 ShBadgesPresenter >> updateBadgeSelection: item [
 
 	item 
 		ifNil: [ self checkButton ]
-		ifNotNil: [ self updateBadgeText ]
-]
-
-{ #category : #callbacks }
-ShBadgesPresenter >> updateBadgeText [
-
-	self selectedBadgeItem 
-		ifNotNil: [ : selectedBadge |
-			| text |
-			text := selectedBadge badgeCode copyReplaceAll: ':user' with: self username text.
-			text := text copyReplaceAll: ':repo' with: self repository text.
-			text := text copyReplaceAll: ':branch' with: self  branch text.
-			self badgesTextArea text: (self buildBadgeMDUrl: text).
-			
-			self copyButton enable.
-			self checkButton enable ]
+		ifNotNil: [ self updateBadgePanes ]
 ]
 
 { #category : #callbacks }
@@ -455,14 +414,17 @@ ShBadgesPresenter >> updateBadgesList [
 		roots: (self badgeCollector badgesAt: self selectedBadgeType)
 ]
 
-{ #category : #accessing }
-ShBadgesPresenter >> username [
-
-	^ username
+{ #category : #private }
+ShBadgesPresenter >> valueFor: badgeVarName [ 
+	"Answer a <String> with the result of stored badge variable of badgeVarName"
+	
+	^ self application 
+		badgeUserVariablesAt: badgeVarName
+		ifAbsent: [ String empty ]
 ]
 
 { #category : #accessing }
-ShBadgesPresenter >> username: anObject [
+ShBadgesPresenter >> variablesTable [
 
-	username := anObject
+	^ variablesTable
 ]

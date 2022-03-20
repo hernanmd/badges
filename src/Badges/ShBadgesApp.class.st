@@ -1,6 +1,9 @@
 Class {
 	#name : #ShBadgesApp,
 	#superclass : #SpApplication,
+	#instVars : [
+		'badgeUserVariables'
+	],
 	#category : #Badges
 }
 
@@ -15,8 +18,23 @@ ShBadgesApp class >> menuCommandOn: aBuilder [
 ]
 
 { #category : #accessing }
+ShBadgesApp >> badgeUserVariables [
+
+	^ badgeUserVariables
+		ifNil: [ badgeUserVariables := Dictionary new ]
+]
+
+{ #category : #accessing }
+ShBadgesApp >> badgeUserVariablesAt: aVariableName ifAbsent: aBlock [
+
+	^ self badgeUserVariables 
+		at: aVariableName
+		ifAbsent: aBlock
+]
+
+{ #category : #accessing }
 ShBadgesApp >> start [
 	" Private - See superimplementor's comment "
 
-	(ShBadgesPresenter newApplication: self) open.
+	(ShBadgesPresenter newApplication: self) openWithSpec.
 ]

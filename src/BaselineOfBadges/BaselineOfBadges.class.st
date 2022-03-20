@@ -12,6 +12,7 @@ BaselineOfBadges >> baseline: spec [
 		do: [ 
 			spec preLoadDoIt: #preLoad.	
 			self soup: spec.
+			self stringExtensions: spec.
 			spec 
 				package: 'Badges'			with: [ spec requires: #(Soup) ];
 				package: 'Badges-Tests'	with: [ spec requires: #(Badges) ].
@@ -54,4 +55,12 @@ BaselineOfBadges >> soup: spec [
 		with: [ spec 
 			repository: 'github://seandenigris/Soup-for-Pharo/repository';
 			loads: 'Core' ]
+]
+
+{ #category : #baselines }
+BaselineOfBadges >> stringExtensions: spec [
+
+	spec
+		baseline: 'StringExtensions' 
+		with: [ spec repository: 'github://hernanmd/StringExtensions/repository' ].
 ]
