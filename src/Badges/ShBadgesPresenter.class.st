@@ -130,18 +130,25 @@ ShBadgesPresenter >> checkSelectedBadge [
 ]
 
 { #category : #private }
-ShBadgesPresenter >> collectBadgeVariables: aString [ 
+ShBadgesPresenter >> collectBadgeVariables: aString [
+
 	"Parse aString and extract variables. Answer a <Collection> of <Association>"
 
 	| tmpVarTable vars |
 	tmpVarTable := OrderedCollection new.
-	vars := (aString findTokens: '/') 
-		select: [ : c | c beginsWith: ':' ] 
-		thenCollect: #allButFirst.
+	vars := self collectBadgeVariablesFromPath: aString.
 	vars
-		collect: [ : varName | varName copyUpToAny: { $* . $? . $+ }  ]
-		thenDo: [ : varName | tmpVarTable add: (varName -> (self valueFor: varName)) ].
+		collect: [ :varName | varName copyUpToAny: { $*. $?. $+ } ]
+		thenDo: [ :varName | tmpVarTable add: varName -> (self valueFor: varName) ].
 	^ tmpVarTable
+]
+
+{ #category : #private }
+ShBadgesPresenter >> collectBadgeVariablesFromPath: aString [
+
+	^ (aString findTokens: '/')
+		  select: [ :c | c beginsWith: ':' ]
+		  thenCollect: #allButFirst
 ]
 
 { #category : #accessing }
@@ -405,15 +412,15 @@ ShBadgesPresenter >> toolbarLayout [
 { #category : #callbacks }
 ShBadgesPresenter >> updateBadgePanes [
 
-	self selectedBadgeItem 
-		ifNotNil: [ : selectedBadge |
-			| badgeText |
-			badgeText := selectedBadge badgeCode.
-			self badgesTextSource text: (self buildBadgeMDUrl: badgeText).
-			variablesTable items: (self collectBadgeVariables: badgeText).
-		
-			self copyButton enable.
-			self checkButton enable ]
+	self selectedBadgeItem ifNotNil: [ :selectedBadge | 
+
+		| badgeText |
+		badgeText := selectedBadge badgeCode.
+		self updateBadgeSource: badgeText.
+		self updateBadgeTarget: badgeText.
+		variablesTable items: (self collectBadgeVariables: badgeText).	
+		self copyButton enable.
+		self checkButton enable ]
 ]
 
 { #category : #callbacks }
@@ -422,6 +429,29 @@ ShBadgesPresenter >> updateBadgeSelection: item [
 	item 
 		ifNil: [ self checkButton ]
 		ifNotNil: [ self updateBadgePanes ]
+]
+
+{ #category : #callbacks }
+ShBadgesPresenter >> updateBadgeSource: badgeText [
+
+	self badgesTextSource text: (self buildBadgeMDUrl: badgeText).
+
+]
+
+{ #category : #callbacks }
+ShBadgesPresenter >> updateBadgeTarget: badgeText [
+	"Replace badgeText URL variables with values supplied by user and update the target text area"
+
+	| varMappings targetBadgeText |
+	
+	varMappings := self collectBadgeVariables: badgeText.
+	targetBadgeText := badgeText copy.
+	varMappings do: [ : varName | 
+		targetBadgeText := targetBadgeText 
+			copyWithRegex: '\:' , varName key 
+			matchesReplacedWith: varName value ].
+	self badgesTextTarget text: (self buildBadgeMDUrl: targetBadgeText).
+
 ]
 
 { #category : #callbacks }
