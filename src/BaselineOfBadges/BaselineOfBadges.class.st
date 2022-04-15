@@ -13,6 +13,8 @@ BaselineOfBadges >> baseline: spec [
 			spec preLoadDoIt: #preLoad.	
 			self soup: spec.
 			self stringExtensions: spec.
+			"self chrysal: spec."
+	
 			spec 
 				package: 'Badges'			with: [ spec requires: #(Soup) ];
 				package: 'Badges-Tests'	with: [ spec requires: #(Badges) ].
@@ -20,6 +22,14 @@ BaselineOfBadges >> baseline: spec [
 				group: 'Core' 						with: #('Badges');
 				group: 'Tests' 						with: #('Badges' 'Badges-Tests');
 				group: 'default' 					with: #('Core') ]
+]
+
+{ #category : #baselines }
+BaselineOfBadges >> chrysal: spec [
+
+	spec 
+		baseline: 'Chrysal' 
+		with: [ spec repository: 'github://Ducasse/Chrysal' ].
 ]
 
 { #category : #preloading }

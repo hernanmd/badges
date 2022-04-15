@@ -13,10 +13,12 @@ Class {
 		'badgesCollector',
 		'badgesTable',
 		'variablesTable',
-		'badgesTextSource',
-		'badgesTextTarget'
+		'badgesTextTarget',
+		'badgeTextTemplate',
+		'variablesToolbar',
+		'badgeParser'
 	],
-	#category : #Badges
+	#category : #'Badges-UI'
 }
 
 { #category : #'instance creation' }
@@ -31,9 +33,24 @@ ShBadgesPresenter class >> open [
 
 { #category : #accessing }
 ShBadgesPresenter >> badgeCollector [
-	
+	"Answer a <Collection> of <ShBadge> collected from the Shields.io website"
+
 	^ badgesCollector
 		ifNil: [ badgesCollector := ShBadgeCollector new ]
+]
+
+{ #category : #private }
+ShBadgesPresenter >> badgeParser [
+
+	^ badgeParser 
+		ifNil: [ badgeParser := ShBadgesParser newFor: self application ]
+]
+
+{ #category : #accessing }
+ShBadgesPresenter >> badgeTextTemplate [
+	" Answer a text widget of this presenter to display the original template for the selected badge "
+
+	^ badgeTextTemplate
 ]
 
 { #category : #accessing }
@@ -67,13 +84,6 @@ ShBadgesPresenter >> badgesTable: anObject [
 	" Sets the badgesList of this presenter "
 
 	badgesTable := anObject
-]
-
-{ #category : #accessing }
-ShBadgesPresenter >> badgesTextSource [
-	" Answer the badgesTextArea of this presenter "
-
-	^ badgesTextSource
 ]
 
 { #category : #accessing }
@@ -131,24 +141,9 @@ ShBadgesPresenter >> checkSelectedBadge [
 
 { #category : #private }
 ShBadgesPresenter >> collectBadgeVariables: aString [
-
 	"Parse aString and extract variables. Answer a <Collection> of <Association>"
 
-	| tmpVarTable vars |
-	tmpVarTable := OrderedCollection new.
-	vars := self collectBadgeVariablesFromPath: aString.
-	vars
-		collect: [ :varName | varName copyUpToAny: { $*. $?. $+ } ]
-		thenDo: [ :varName | tmpVarTable add: varName -> (self valueFor: varName) ].
-	^ tmpVarTable
-]
-
-{ #category : #private }
-ShBadgesPresenter >> collectBadgeVariablesFromPath: aString [
-
-	^ (aString findTokens: '/')
-		  select: [ :c | c beginsWith: ':' ]
-		  thenCollect: #allButFirst
+	^ self badgeParser collectBadgeVariables: aString
 ]
 
 { #category : #accessing }
@@ -164,6 +159,14 @@ ShBadgesPresenter >> copySelectedBadge [
 
 	Clipboard clipboardText: self buildBadgeUrl.
 	self inform: 'Copied to clipboard'
+]
+
+{ #category : #callbacks }
+ShBadgesPresenter >> deleteDefinedVariables [
+	"Delete defined variables for the current application"
+	
+	self application deleteDefinedVariables.
+	self inform: 'Done'.
 ]
 
 { #category : #initialization }
@@ -197,6 +200,30 @@ ShBadgesPresenter >> initializeActionBar [
 ]
 
 { #category : #initialization }
+ShBadgesPresenter >> initializeBadgeTextTemplate [
+		
+	badgeTextTemplate := self newText.
+	badgeTextTemplate 
+		beNotEditable
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> initializeBadgeVariablesPane [
+
+	variablesTable := self newTable.
+	variablesTable
+		addColumn: (SpStringTableColumn title: 'Name' evaluated: #key) beSortable;
+		addColumn: (SpStringTableColumn new 
+			title: 'Value';
+			evaluated: [ : val | self application badgeUserVariablesAt: val key ];
+			beEditable;
+			onAcceptEdition: [: assoc : textField | 
+				self application badgeUserVariablesAt: assoc key put: textField text ]);
+		showColumnHeaders;
+		beResizable.
+]
+
+{ #category : #initialization }
 ShBadgesPresenter >> initializeBadgesTable [
 
 	self badgesTable: self newTreeTable.
@@ -221,14 +248,6 @@ ShBadgesPresenter >> initializeBadgesTable [
 ]
 
 { #category : #initialization }
-ShBadgesPresenter >> initializeBadgesTextSource [
-		
-	badgesTextSource := self newText.
-	badgesTextSource 
-		beNotEditable
-]
-
-{ #category : #initialization }
 ShBadgesPresenter >> initializeBadgesTypes [
 
 	self badgeTypes: self newList.
@@ -237,10 +256,10 @@ ShBadgesPresenter >> initializeBadgesTypes [
 		items: self badgesCategories asSortedCollection;
 		selectIndex: 1;
 		whenSelectionChangedDo: [ 
-			self badgeTypes selectedItem ifNotNil: [ self updateBadgesList ].
+			self badgeTypes selectedItem ifNotNil: [ self updateNewBadgeTypeSelected ].
 			self checkButton disable.
 			self copyButton disable.
-			self badgesTextSource text: String empty ]
+			self badgeTextTemplate text: String empty ]
 ]
 
 { #category : #initialization }
@@ -250,7 +269,7 @@ ShBadgesPresenter >> initializeFocus [
 	self focusOrder
 		add: self badgeTypes;
 		add: self badgesTable;
-		add: self badgesTextSource;
+		add: self badgeTextTemplate;
 		add: variablesTable;
 		add: self toolbar
 ]
@@ -268,9 +287,10 @@ ShBadgesPresenter >> initializeLayout [
 				add: (SpBoxLayout newTopToBottom
 					add: 'Badge variables' expand: false;
 					add: #variablesTable;
+					add: #variablesToolbar height: self class toolbarHeight;
 					yourself);
 				yourself);
-			add: #badgesTextSource height: 50;
+			add: #badgeTextTemplate height: 50;
 			add: #badgesTextTarget height: 50;
 			spacing: 4;
 			add: self toolbarLayout height: self class toolbarHeight;				
@@ -285,36 +305,38 @@ ShBadgesPresenter >> initializePresenters [
 	self 
 		initializeBadgesTypes;
 		initializeBadgesTable;
-		initializeBadgesTextSource;
+		initializeBadgeTextTemplate;
 		initilizeBadgesTextTarget;
-		initializeVariablesPane;
+		initializeBadgeVariablesPane;
+		initializeVariablesToolbar;
 		initializeActionBar;
 		initializeFocus;
 		initializeLayout.
 ]
 
 { #category : #initialization }
-ShBadgesPresenter >> initializeVariablesPane [
+ShBadgesPresenter >> initializeVariablesToolbar [
 
-	variablesTable := self newTable.
-	variablesTable
-		addColumn: (SpStringTableColumn title: 'Name' evaluated: #key) beSortable;
-		addColumn: (SpStringTableColumn new 
-			title: 'Value';
-			evaluated: #value;
-			beEditable;
-			onAcceptEdition: [: assoc : textField | 
-				self application badgeUserVariablesAt: assoc key put: textField text ]);
-		showColumnHeaders;
-		beResizable.
-]
-
-{ #category : #initialization }
-ShBadgesPresenter >> initilizeBadgesTextSource [
-		
-	badgesTextSource := self newText.
-	badgesTextSource beNotEditable
-
+	variablesToolbar := self newToolbar
+		addItem: (SpToolbarButtonPresenter new
+			label: 'Browse';
+			icon: (self iconNamed: #catalog);
+			help: 'Browse all defined variables';
+			action: [ self application badgeUserVariables inspect];
+			yourself);
+		addItem: (SpToolbarButtonPresenter new
+			label: 'Save';
+			icon: (self iconNamed: #smallSave);
+			help: 'Save current variables as global';
+			action: [ self saveDefinedVariables ];
+			yourself);
+		addItem: (SpToolbarButtonPresenter new
+			label: 'Clear';
+			icon: (self iconNamed: #smallDelete);
+			help: 'Clear all variables';
+			action: [ self deleteDefinedVariables ];
+			yourself);			
+		yourself.	
 ]
 
 { #category : #initialization }
@@ -357,6 +379,14 @@ ShBadgesPresenter >> newCopyButton [
 		  action: [ self copySelectedBadge ];
 		  enabled: false;
 		  yourself
+]
+
+{ #category : #callbacks }
+ShBadgesPresenter >> saveDefinedVariables [
+	"Save defined variables for the current application"
+	
+	self application saveDefinedVariables.
+	self inform: 'Done'.
 ]
 
 { #category : #initialization }
@@ -434,7 +464,7 @@ ShBadgesPresenter >> updateBadgeSelection: item [
 { #category : #callbacks }
 ShBadgesPresenter >> updateBadgeSource: badgeText [
 
-	self badgesTextSource text: (self buildBadgeMDUrl: badgeText).
+	self badgeTextTemplate text: (self buildBadgeMDUrl: badgeText).
 
 ]
 
@@ -455,19 +485,13 @@ ShBadgesPresenter >> updateBadgeTarget: badgeText [
 ]
 
 { #category : #callbacks }
-ShBadgesPresenter >> updateBadgesList [
+ShBadgesPresenter >> updateNewBadgeTypeSelected [
+	"Private - A new badge type has been selected, clear and update all related panes"
 
-	self badgesTable 
-		roots: (self badgeCollector badgesAt: self selectedBadgeType)
-]
-
-{ #category : #private }
-ShBadgesPresenter >> valueFor: badgeVarName [ 
-	"Answer a <String> with the result of stored badge variable of badgeVarName"
-	
-	^ self application 
-		badgeUserVariablesAt: badgeVarName
-		ifAbsent: [ String empty ]
+	self badgesTable roots: (self badgeCollector badgesAt: self selectedBadgeType).
+	self badgeTextTemplate clearContent.
+	self badgesTextTarget clearContent.
+	self variablesTable items: Array empty.
 ]
 
 { #category : #accessing }

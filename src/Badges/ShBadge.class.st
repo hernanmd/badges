@@ -39,7 +39,7 @@ CGShieldsBadge forTravisBranch
 Class {
 	#name : #ShBadge,
 	#superclass : #ShAbstractBadge,
-	#category : #Badges
+	#category : #'Badges-Core'
 }
 
 { #category : #'accessing - url' }

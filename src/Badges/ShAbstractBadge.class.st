@@ -6,7 +6,7 @@ Class {
 		'badgeImg',
 		'badgeCode'
 	],
-	#category : #Badges
+	#category : #'Badges-Core'
 }
 
 { #category : #'instance creation' }

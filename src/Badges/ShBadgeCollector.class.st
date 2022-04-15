@@ -16,7 +16,7 @@ Class {
 		'badges',
 		'soupTable'
 	],
-	#category : #Badges
+	#category : #'Badges-Core'
 }
 
 { #category : #accessing }
@@ -74,7 +74,7 @@ ShBadgeCollector >> badgesAt: badgesCategory [
 { #category : #accessing }
 ShBadgeCollector >> buildPngURLString: aString [
 
-	^ String << [ : stream |
+	^ String streamContents: [ : stream |
 			stream 
 				<< ShBadge baseUrl;
 				<< (((aString copyWithoutAll: '"') withoutPrefix: '/') withoutSuffix: '/');
@@ -153,7 +153,7 @@ ShBadgeCollector >> selectBadgeExamplesAt: categoryName [
 { #category : #accessing }
 ShBadgeCollector >> shieldsUrl [
 
-	^  String << [ : stream |
+	^  String streamContents: [ : stream |
 			stream 
 				<< ShBadge baseUrl;
 				<< 'category/' ]
