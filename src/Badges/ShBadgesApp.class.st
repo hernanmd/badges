@@ -107,7 +107,7 @@ ShBadgesApp >> saveDefinedVariables [
 		(STON writer on: out) nextPut: self badgeUserVariables ].
 ]
 
-{ #category : #accessing }
+{ #category : #running }
 ShBadgesApp >> start [
 	" Private - See superimplementor's comment "
 

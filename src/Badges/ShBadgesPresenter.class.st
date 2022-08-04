@@ -16,7 +16,8 @@ Class {
 		'badgesTextTarget',
 		'badgeTextTemplate',
 		'variablesToolbar',
-		'badgeParser'
+		'badgeParser',
+		'allVariablesTable'
 	],
 	#category : #'Badges-UI'
 }
@@ -208,7 +209,7 @@ ShBadgesPresenter >> initializeBadgeTextTemplate [
 ]
 
 { #category : #initialization }
-ShBadgesPresenter >> initializeBadgeVariablesPane [
+ShBadgesPresenter >> initializeBadgeVariablesPanes [
 
 	variablesTable := self newTable.
 	variablesTable
@@ -218,7 +219,20 @@ ShBadgesPresenter >> initializeBadgeVariablesPane [
 			evaluated: [ : val | self application badgeUserVariablesAt: val key ];
 			beEditable;
 			onAcceptEdition: [: assoc : textField | 
-				self application badgeUserVariablesAt: assoc key put: textField text ]);
+				self application badgeUserVariablesAt: assoc key put: textField text.
+				allVariablesTable update ]);
+		showColumnHeaders;
+		beResizable.
+	allVariablesTable := self newTable.
+	allVariablesTable
+		addColumn: (SpStringTableColumn new
+			title: 'Name'; 
+			evaluated: #key) beSortable;
+		addColumn: (SpStringTableColumn new 
+			title: 'Value';
+			evaluated: #value;
+			beEditable);
+		items: self application badgeUserVariables;
 		showColumnHeaders;
 		beResizable.
 ]
@@ -285,9 +299,11 @@ ShBadgesPresenter >> initializeLayout [
 				positionOfSlider: 0.7;
 				add: #badgesTable;
 				add: (SpBoxLayout newTopToBottom
-					add: 'Badge variables' expand: false;
+					add: 'Badge variables' expand: false;					
 					add: #variablesTable;
-					add: #variablesToolbar height: self class toolbarHeight;
+					add: 'All variables' expand: false;
+					add: #allVariablesTable;
+					add: #variablesToolbar height: self class toolbarHeight;					
 					yourself);
 				yourself);
 			add: #badgeTextTemplate height: 50;
@@ -307,7 +323,7 @@ ShBadgesPresenter >> initializePresenters [
 		initializeBadgesTable;
 		initializeBadgeTextTemplate;
 		initilizeBadgesTextTarget;
-		initializeBadgeVariablesPane;
+		initializeBadgeVariablesPanes;
 		initializeVariablesToolbar;
 		initializeActionBar;
 		initializeFocus;
