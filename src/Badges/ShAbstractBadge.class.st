@@ -22,6 +22,8 @@ ShAbstractBadge class >> named: nameString code: codeString img: aFormOrNil [
 
 { #category : #accessing }
 ShAbstractBadge >> badgeCode [
+	"Answer a <String> representing the code to generate a visual representation of the receiver"
+
 	^ badgeCode
 ]
 
@@ -32,6 +34,8 @@ ShAbstractBadge >> badgeCode: anObject [
 
 { #category : #accessing }
 ShAbstractBadge >> badgeImg [
+	"Answer a <Form> image, a visual view of the receiver"
+
 	^ badgeImg
 ]
 
@@ -44,6 +48,8 @@ ShAbstractBadge >> badgeImg: aFormOrNil [
 
 { #category : #accessing }
 ShAbstractBadge >> badgeName [
+	"Answer a <String> to identify the receiver"
+
 	^ badgeName
 ]
 

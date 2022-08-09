@@ -66,7 +66,7 @@ ShBadgesPresenter >> badgeTypes: anObject [
 	badgeTypes := anObject
 ]
 
-{ #category : #initialization }
+{ #category : #accessing }
 ShBadgesPresenter >> badgesCategories [
 	" See comment in shields collector #badgeCategories "
 
@@ -116,7 +116,7 @@ ShBadgesPresenter >> buildBadgeMDUrl: text [
 			<< $) ]
 ]
 
-{ #category : #initialization }
+{ #category : #private }
 ShBadgesPresenter >> buildBadgeUrl [
 
 	^ String streamContents: [ : stream |
@@ -405,7 +405,7 @@ ShBadgesPresenter >> saveDefinedVariables [
 	self inform: 'Done'.
 ]
 
-{ #category : #initialization }
+{ #category : #callbacks }
 ShBadgesPresenter >> searchItem: item text: textToSearch [
 
 	^ item badgeName asLowercase beginsWith: textToSearch asLowercase 

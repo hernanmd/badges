@@ -59,9 +59,10 @@ ShBadgeCollector >> badgeImageAt: imgURLString [
 
 { #category : #accessing }
 ShBadgeCollector >> badges [
+	"Answer a <ShBadgeCollection> instance"
 
 	^ badges
-		ifNil: [ badges := ShBadgeCollection new ]
+		ifNil: [ badges := ShBadgeFileCollection new ]
 ]
 
 { #category : #accessing }
@@ -141,8 +142,19 @@ ShBadgeCollector >> newBadgeNamed: nameString code: codeString img: imgURLString
 ]
 
 { #category : #accessing }
+ShBadgeCollector >> newBadgeNamed: nameString code: codeString imgForm: aForm [
+	" Add a new shields badge identified by nameString with image aForm "
+
+	^ ShBadge 
+		named: nameString 
+		code: codeString
+		img: aForm
+]
+
+{ #category : #accessing }
 ShBadgeCollector >> selectBadgeExamplesAt: categoryName [
-	" Set a <String> valid to be used in an URL query to the receiver's endpoint "
+	" Retrieve and parse shields at categoryName <String>. Answer a <Collection> with the badges"
+
 	| shieldsCatName |
 	
 	shieldsCatName := categoryName copyReplaceAll: ' ' with: '-'.
@@ -153,8 +165,5 @@ ShBadgeCollector >> selectBadgeExamplesAt: categoryName [
 { #category : #accessing }
 ShBadgeCollector >> shieldsUrl [
 
-	^  String streamContents: [ : stream |
-			stream 
-				<< ShBadge baseUrl;
-				<< 'category/' ]
+	^ ShBadge baseUrl , '/'
 ]

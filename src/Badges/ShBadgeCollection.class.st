@@ -1,5 +1,8 @@
 "
-Wrapper for serializing and materializing shields, currently in FUEL format.
+Abstract class providing an interface for accessing badges as `Dictionary`.
+
+Subclasses may implement file based access to badges or mocks.
+
 "
 Class {
 	#name : #ShBadgeCollection,
@@ -30,7 +33,7 @@ ShBadgeCollection >> badges: anObject [
 
 { #category : #accessing }
 ShBadgeCollection >> badgesAt: aString [ 
-	" Answer a <Dictionary> of the receiver's badges <CGShieldBadge> which matches category name aString "
+	" Answer a <Dictionary> of the receiver's badges <ShBadge> which matches category name aString "
 
 	^ self badges at: aString
 ]
@@ -43,40 +46,21 @@ ShBadgeCollection >> badgesAt: aString ifAbsent: aBlock [
 
 ]
 
-{ #category : #initialization }
-ShBadgeCollection >> getShields [
-	" Connect to the remote repository, download and serialize the available badges  "
+{ #category : #accessing }
+ShBadgeCollection >> badgesAt: aString put: anObject [
+	" Answer a <Dictionary> of the receiver's badges <ShBadge> which matches category name aString "
 
-	FLSerializer 
-		serialize: ShBadgeCollector new collectAllBadges
-		toFileNamed: self shieldsFilename
+	^ self badges at: aString put: anObject
 ]
 
 { #category : #testing }
 ShBadgeCollection >> hasShields [
-	" Answer <true> if the receiver has any badges "
 
-	^ self shieldsFilename asFileReference exists
+	self subclassResponsibility
 ]
 
 { #category : #initialization }
-ShBadgeCollection >> initializeBadges [ 
-	" Private - Set the receiver's badges. If there are any serialization of badges, read it first "
+ShBadgeCollection >> initializeBadges [
 
-	self hasShields 
-		ifFalse: [ self getShields ].
-	self badges: self readShields.
-]
-
-{ #category : #initialization }
-ShBadgeCollection >> readShields [
-	" Answer the contents of the receiver's badges file "
-
-	^ FLMaterializer materializeFromFileNamed: self shieldsFilename 
-]
-
-{ #category : #initialization }
-ShBadgeCollection >> shieldsFilename [
-
-	^ 'shields.badges'
+	self subclassResponsibility 
 ]
