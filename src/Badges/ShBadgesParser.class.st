@@ -47,6 +47,7 @@ ShBadgesParser >> collectBadgeVariables: aString [
 
 { #category : #private }
 ShBadgesParser >> collectBadgeVariablesFromPath: aString [
+	"Answer a <Collection> of <String> where variables separated by colons are tokenized"
 
 	^ (aString findTokens: '/')
 		  select: [ :c | c beginsWith: ':' ]

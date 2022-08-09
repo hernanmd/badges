@@ -67,7 +67,7 @@ ShBadgeCollector >> badges [
 
 { #category : #accessing }
 ShBadgeCollector >> badgesAt: badgesCategory [ 
-	" Answer a <Collection> of <CGShieldsBadge> of category String badgesCategory "
+	" Answer a <Collection> of <ShBadge> of category String badgesCategory "
 
 	^ self badges badgesAt: badgesCategory
 ]

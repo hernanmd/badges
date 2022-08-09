@@ -16,7 +16,7 @@ BaselineOfBadges >> baseline: spec [
 			"self chrysal: spec."
 	
 			spec 
-				package: 'Badges'			with: [ spec requires: #(Soup) ];
+				package: 'Badges'			with: [ spec requires: #(Soup StringExtensions) ];
 				package: 'Badges-Tests'	with: [ spec requires: #(Badges) ].
 			spec 
 				group: 'Core' 						with: #('Badges');
@@ -46,7 +46,7 @@ BaselineOfBadges >> platformFilesUrl [
 
 	^ Array with: (String streamContents: [ : stream |		
 		stream
-			nextPutAll: 'https://github.com/hernanmd/shield-badges/raw/master/res/shields.zip' ])
+			nextPutAll: 'https://github.com/hernanmd/resources/raw/main/shields.zip' ])
 	
 ]
 

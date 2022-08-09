@@ -29,7 +29,7 @@ ShBadgesPresenter class >> open [
 
 	self basicNew 
 		initialize;
-		openWithSpec.
+		open.
 ]
 
 { #category : #accessing }
@@ -70,6 +70,12 @@ ShBadgesPresenter >> badgeTypes: anObject [
 ShBadgesPresenter >> badgeUserVariables [
 
 	^ self application badgeUserVariables
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> badgeUserVariables: aDictionary [
+
+	self application badgeUserVariables: aDictionary
 ]
 
 { #category : #accessing }
@@ -173,7 +179,8 @@ ShBadgesPresenter >> deleteDefinedVariables [
 	"Delete defined variables for the current application"
 	
 	self application deleteDefinedVariables.
-	self inform: 'Done'.
+	allVariablesTable items: self badgeUserVariables associations.
+	self inform: 'Cleared all variables'.
 ]
 
 { #category : #initialization }
@@ -240,10 +247,10 @@ ShBadgesPresenter >> initializeBadgeVariablesPanes [
 				 evaluated: [ :val | 
 					 self application badgeUserVariablesAt: val key ];
 				 beEditable;
-				 onAcceptEdition: [ :assoc :textField | 
+				 onAcceptEdition: [ :assoc : text | 
 					 self application
 						 badgeUserVariablesAt: assoc key
-						 put: textField text.
+						 put: text.
 					 allVariablesTable items: self badgeUserVariables associations ]);
 		showColumnHeaders;
 		beResizable
@@ -318,7 +325,9 @@ ShBadgesPresenter >> initializeLayout [
 					add: #variablesToolbar height: self class toolbarHeight;					
 					yourself);
 				yourself);
+			add: 'Template' height: self class labelHeight;
 			add: #badgeTextTemplate height: 50;
+			add: 'Custom' height: self class labelHeight;
 			add: #badgesTextTarget height: 50;
 			spacing: 4;
 			add: self toolbarLayout height: self class toolbarHeight;				
@@ -348,10 +357,10 @@ ShBadgesPresenter >> initializeVariablesToolbar [
 
 	variablesToolbar := self newToolbar
 		                    addItem: (SpToolbarButtonPresenter new
-				                     label: 'Browse';
+				                     label: 'Load';
 				                     icon: (self iconNamed: #catalog);
-				                     help: 'Browse all defined variables';
-				                     action: [ self badgeUserVariables inspect ];
+				                     help: 'Load variables from a .ston file';
+				                     action: [ self loadDefinedVariables ];
 				                     yourself);
 		                    addItem: (SpToolbarButtonPresenter new
 				                     label: 'Save';
@@ -373,6 +382,21 @@ ShBadgesPresenter >> initilizeBadgesTextTarget [
 		
 	badgesTextTarget := self newText.
 
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> loadDefinedVariables [
+
+	(UIManager default
+		chooseExistingFileReference: 'Select a .ston file with badge variables' 
+		extensions: #('ston')
+		path: StartupPreferencesLoader preferencesGeneralFolder)
+			ifNotNil: [ : selection | 
+				self badgeUserVariables: 
+					(self application 
+						configurationFile: selection;
+						loadDefinedVariables).
+				allVariablesTable items: self badgeUserVariables associations ]
 ]
 
 { #category : #private }

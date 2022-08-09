@@ -1,8 +1,16 @@
+"
+Main Spec application class which mainly has two roles
+
+- Store the badge variables.
+- Has a reference to a configuration file.
+
+"
 Class {
 	#name : #ShBadgesApp,
 	#superclass : #SpApplication,
 	#instVars : [
-		'badgeUserVariables'
+		'badgeUserVariables',
+		'configurationFile'
 	],
 	#category : #'Badges-UI'
 }
@@ -23,6 +31,12 @@ ShBadgesApp >> badgeUserVariables [
 
 	^ badgeUserVariables
 		ifNil: [ badgeUserVariables := Dictionary new ]
+]
+
+{ #category : #accessing }
+ShBadgesApp >> badgeUserVariables: anObject [
+
+	badgeUserVariables := anObject
 ]
 
 { #category : #accessing }
@@ -53,6 +67,20 @@ ShBadgesApp >> badgeUserVariablesAt: aVariableName put: aString [
 ShBadgesApp >> configurationFile [
 	"Answer a default <FileReference> for storing user defined badge variables"
 
+	^ configurationFile
+		ifNil: [ configurationFile := self defaultConfigurationFile ]
+]
+
+{ #category : #accessing }
+ShBadgesApp >> configurationFile: anObject [
+
+	configurationFile := anObject
+]
+
+{ #category : #accessing }
+ShBadgesApp >> defaultConfigurationFile [
+	"Answer a default <FileReference> for storing user defined badge variables"
+
 	^ (StartupPreferencesLoader preferencesGeneralFolder / 'shBadgesConfig.ston') asFileReference
 ]
 
@@ -78,7 +106,7 @@ ShBadgesApp >> initialize [
 ShBadgesApp >> itemDescriptions [
 
 	self flag: #HowToUseChrysal.
-	^ {
+"	^ {
 		(StringConfigurationItem new
 			propertyName: #user;
 			default: '';
@@ -87,7 +115,7 @@ ShBadgesApp >> itemDescriptions [
 			propertyName: #repo;
 			default: '';
 			yourself) 
-		}.
+		}."
 ]
 
 { #category : #accessing }
@@ -111,5 +139,5 @@ ShBadgesApp >> saveDefinedVariables [
 ShBadgesApp >> start [
 	" Private - See superimplementor's comment "
 
-	(ShBadgesPresenter newApplication: self) openWithSpec.
+	(ShBadgesPresenter newApplication: self) open.
 ]
