@@ -64,7 +64,7 @@ ShBadgesApp >> deleteDefinedVariables [
 	self saveDefinedVariables.
 ]
 
-{ #category : #initialize }
+{ #category : #initialization }
 ShBadgesApp >> initialize [
 
 	super initialize.

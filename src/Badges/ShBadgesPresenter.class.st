@@ -66,6 +66,12 @@ ShBadgesPresenter >> badgeTypes: anObject [
 	badgeTypes := anObject
 ]
 
+{ #category : #initialization }
+ShBadgesPresenter >> badgeUserVariables [
+
+	^ self application badgeUserVariables
+]
+
 { #category : #accessing }
 ShBadgesPresenter >> badgesCategories [
 	" See comment in shields collector #badgeCategories "
@@ -201,6 +207,20 @@ ShBadgesPresenter >> initializeActionBar [
 ]
 
 { #category : #initialization }
+ShBadgesPresenter >> initializeAllBadgeVariablesPanes [
+
+	allVariablesTable := self newTable.
+	allVariablesTable
+		addColumn: (SpStringTableColumn title: 'Name' evaluated: #key) beSortable;
+		addColumn: (SpStringTableColumn new 
+			title: 'Value';
+			evaluated: #value);
+		showColumnHeaders;
+		beResizable.
+
+]
+
+{ #category : #initialization }
 ShBadgesPresenter >> initializeBadgeTextTemplate [
 		
 	badgeTextTemplate := self newText.
@@ -213,28 +233,20 @@ ShBadgesPresenter >> initializeBadgeVariablesPanes [
 
 	variablesTable := self newTable.
 	variablesTable
-		addColumn: (SpStringTableColumn title: 'Name' evaluated: #key) beSortable;
-		addColumn: (SpStringTableColumn new 
-			title: 'Value';
-			evaluated: [ : val | self application badgeUserVariablesAt: val key ];
-			beEditable;
-			onAcceptEdition: [: assoc : textField | 
-				self application badgeUserVariablesAt: assoc key put: textField text.
-				allVariablesTable update ]);
-		showColumnHeaders;
-		beResizable.
-	allVariablesTable := self newTable.
-	allVariablesTable
+		addColumn:
+			(SpStringTableColumn title: 'Name' evaluated: #key) beSortable;
 		addColumn: (SpStringTableColumn new
-			title: 'Name'; 
-			evaluated: #key) beSortable;
-		addColumn: (SpStringTableColumn new 
-			title: 'Value';
-			evaluated: #value;
-			beEditable);
-		items: self application badgeUserVariables;
+				 title: 'Value';
+				 evaluated: [ :val | 
+					 self application badgeUserVariablesAt: val key ];
+				 beEditable;
+				 onAcceptEdition: [ :assoc :textField | 
+					 self application
+						 badgeUserVariablesAt: assoc key
+						 put: textField text.
+					 allVariablesTable items: self badgeUserVariables associations ]);
 		showColumnHeaders;
-		beResizable.
+		beResizable
 ]
 
 { #category : #initialization }
@@ -324,6 +336,7 @@ ShBadgesPresenter >> initializePresenters [
 		initializeBadgeTextTemplate;
 		initilizeBadgesTextTarget;
 		initializeBadgeVariablesPanes;
+		initializeAllBadgeVariablesPanes;
 		initializeVariablesToolbar;
 		initializeActionBar;
 		initializeFocus;
@@ -334,25 +347,25 @@ ShBadgesPresenter >> initializePresenters [
 ShBadgesPresenter >> initializeVariablesToolbar [
 
 	variablesToolbar := self newToolbar
-		addItem: (SpToolbarButtonPresenter new
-			label: 'Browse';
-			icon: (self iconNamed: #catalog);
-			help: 'Browse all defined variables';
-			action: [ self application badgeUserVariables inspect];
-			yourself);
-		addItem: (SpToolbarButtonPresenter new
-			label: 'Save';
-			icon: (self iconNamed: #smallSave);
-			help: 'Save current variables as global';
-			action: [ self saveDefinedVariables ];
-			yourself);
-		addItem: (SpToolbarButtonPresenter new
-			label: 'Clear';
-			icon: (self iconNamed: #smallDelete);
-			help: 'Clear all variables';
-			action: [ self deleteDefinedVariables ];
-			yourself);			
-		yourself.	
+		                    addItem: (SpToolbarButtonPresenter new
+				                     label: 'Browse';
+				                     icon: (self iconNamed: #catalog);
+				                     help: 'Browse all defined variables';
+				                     action: [ self badgeUserVariables inspect ];
+				                     yourself);
+		                    addItem: (SpToolbarButtonPresenter new
+				                     label: 'Save';
+				                     icon: (self iconNamed: #smallSave);
+				                     help: 'Save current variables as global';
+				                     action: [ self saveDefinedVariables ];
+				                     yourself);
+		                    addItem: (SpToolbarButtonPresenter new
+				                     label: 'Clear';
+				                     icon: (self iconNamed: #smallDelete);
+				                     help: 'Clear all variables';
+				                     action: [ self deleteDefinedVariables ];
+				                     yourself);
+		                    yourself
 ]
 
 { #category : #initialization }
@@ -459,12 +472,7 @@ ShBadgesPresenter >> toolbarLayout [
 ShBadgesPresenter >> updateBadgePanes [
 
 	self selectedBadgeItem ifNotNil: [ :selectedBadge | 
-
-		| badgeText |
-		badgeText := selectedBadge badgeCode.
-		self updateBadgeSource: badgeText.
-		self updateBadgeTarget: badgeText.
-		variablesTable items: (self collectBadgeVariables: badgeText).	
+		self updateForSelectedBadge: selectedBadge.
 		self copyButton enable.
 		self checkButton enable ]
 ]
@@ -497,6 +505,18 @@ ShBadgesPresenter >> updateBadgeTarget: badgeText [
 			copyWithRegex: '\:' , varName key 
 			matchesReplacedWith: varName value ].
 	self badgesTextTarget text: (self buildBadgeMDUrl: targetBadgeText).
+
+]
+
+{ #category : #callbacks }
+ShBadgesPresenter >> updateForSelectedBadge: selectedBadge [
+
+	| badgeText |
+
+	badgeText := selectedBadge badgeCode.
+	self updateBadgeSource: badgeText.
+	self updateBadgeTarget: badgeText.
+	variablesTable items: (self collectBadgeVariables: badgeText).
 
 ]
 

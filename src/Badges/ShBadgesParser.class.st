@@ -1,3 +1,8 @@
+"
+Parses an URL `String` templated with badge variables names following the Shields format.
+
+The main method is `ShBadgesParser>>collectBadgeVariables:`
+"
 Class {
 	#name : #ShBadgesParser,
 	#superclass : #Object,

@@ -28,9 +28,10 @@ ShBadgeCollectorTest >> newForm [
 	^ Form extent: 1 @ 1
 ]
 
-{ #category : #test }
+{ #category : #running }
 ShBadgeCollectorTest >> setUp [ 
 
+	super setUp.
 	self collector: ShBadgeCollector new.
 ]
 
