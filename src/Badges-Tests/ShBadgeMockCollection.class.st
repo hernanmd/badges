@@ -1,7 +1,7 @@
 Class {
 	#name : #ShBadgeMockCollection,
 	#superclass : #ShBadgeCollection,
-	#category : #'Badges-Tests'
+	#category : #'Badges-Tests-Core'
 }
 
 { #category : #initialization }

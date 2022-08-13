@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'shBadgesParser'
 	],
-	#category : #'Badges-Tests'
+	#category : #'Badges-Tests-Core'
 }
 
 { #category : #running }

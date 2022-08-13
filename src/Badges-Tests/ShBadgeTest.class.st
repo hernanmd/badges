@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'badge'
 	],
-	#category : #'Badges-Tests'
+	#category : #'Badges-Tests-Core'
 }
 
 { #category : #accessing }

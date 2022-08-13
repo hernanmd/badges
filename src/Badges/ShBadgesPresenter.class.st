@@ -17,7 +17,8 @@ Class {
 		'badgeTextTemplate',
 		'variablesToolbar',
 		'badgeParser',
-		'allVariablesTable'
+		'allVariablesTable',
+		'stylingTable'
 	],
 	#category : #'Badges-UI'
 }
@@ -130,11 +131,9 @@ ShBadgesPresenter >> buildBadgeMDUrl: text [
 
 { #category : #private }
 ShBadgesPresenter >> buildBadgeUrl [
+	"Answer a <String> with the built badge"
 
-	^ String streamContents: [ : stream |
-		stream 
-			<< ShBadge baseUrl;
-			<< self selectedBadgeItem badgeCode ]
+	^ badgesTextTarget text
 ]
 
 { #category : #accessing }
@@ -150,6 +149,22 @@ ShBadgesPresenter >> checkSelectedBadge [
 
 	WebBrowser openOn: self buildBadgeUrl.
 	self copySelectedBadge.
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> collectBadgeStyles [
+
+	^ { 
+		'style' -> #('plastic' 'flat' 'flat-square' 'for-the-badge' 'social') .
+		'label' -> '' .
+		'labelColor' -> '' .
+		'color' -> '' .
+		'logo' -> '' .
+		'logoColor' -> '' .
+		'logoWidth' -> '' .
+		'link' -> '' .
+		'cacheSeconds' -> '' .
+		 }
 ]
 
 { #category : #private }
@@ -228,6 +243,13 @@ ShBadgesPresenter >> initializeAllBadgeVariablesPanes [
 ]
 
 { #category : #initialization }
+ShBadgesPresenter >> initializeBadgeTextTarget [
+		
+	badgesTextTarget := self newText.
+
+]
+
+{ #category : #initialization }
 ShBadgesPresenter >> initializeBadgeTextTemplate [
 		
 	badgeTextTemplate := self newText.
@@ -240,8 +262,7 @@ ShBadgesPresenter >> initializeBadgeVariablesPanes [
 
 	variablesTable := self newTable.
 	variablesTable
-		addColumn:
-			(SpStringTableColumn title: 'Name' evaluated: #key) beSortable;
+		addColumn: (SpStringTableColumn title: 'Name' evaluated: #key) beSortable;
 		addColumn: (SpStringTableColumn new
 				 title: 'Value';
 				 evaluated: [ :val | 
@@ -304,6 +325,8 @@ ShBadgesPresenter >> initializeFocus [
 		add: self badgesTable;
 		add: self badgeTextTemplate;
 		add: variablesTable;
+		add: stylingTable;
+		add: allVariablesTable;
 		add: self toolbar
 ]
 
@@ -318,8 +341,10 @@ ShBadgesPresenter >> initializeLayout [
 				positionOfSlider: 0.7;
 				add: #badgesTable;
 				add: (SpBoxLayout newTopToBottom
-					add: 'Badge variables' expand: false;					
+					add: 'Badge variables' expand: false;	
 					add: #variablesTable;
+					add: 'Styling' expand: false;
+					add: #stylingTable;
 					add: 'All variables' expand: false;
 					add: #allVariablesTable;
 					add: #variablesToolbar height: self class toolbarHeight;					
@@ -343,13 +368,28 @@ ShBadgesPresenter >> initializePresenters [
 		initializeBadgesTypes;
 		initializeBadgesTable;
 		initializeBadgeTextTemplate;
-		initilizeBadgesTextTarget;
+		initializeBadgeTextTarget;
 		initializeBadgeVariablesPanes;
 		initializeAllBadgeVariablesPanes;
 		initializeVariablesToolbar;
+		initializeStylingPanes;
 		initializeActionBar;
 		initializeFocus;
 		initializeLayout.
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> initializeStylingPanes [
+
+	stylingTable := self newTable.
+	stylingTable
+		addColumn: (SpStringTableColumn title: 'Type' evaluated: #key) beSortable;
+		addColumn: (SpStringTableColumn new 
+			title: 'Value';
+			evaluated: #value);
+		showColumnHeaders;
+		items: self collectBadgeStyles;
+		beResizable.
 ]
 
 { #category : #initialization }
@@ -375,13 +415,6 @@ ShBadgesPresenter >> initializeVariablesToolbar [
 				                     action: [ self deleteDefinedVariables ];
 				                     yourself);
 		                    yourself
-]
-
-{ #category : #initialization }
-ShBadgesPresenter >> initilizeBadgesTextTarget [
-		
-	badgesTextTarget := self newText.
-
 ]
 
 { #category : #initialization }
