@@ -137,13 +137,6 @@ ShBadgesPresenter >> builtBadgeMarkdownText [
 	^ badgesTextTarget text
 ]
 
-{ #category : #callbacks }
-ShBadgesPresenter >> builtBadgeURLText [
-	"Answer a <String> representing the built URL for the selected badge"
-	
-	^ (self builtBadgeMarkdownText copyAfter: $() copyUpTo: $)
-]
-
 { #category : #accessing }
 ShBadgesPresenter >> checkButton [
 	" Answer the receiver's <SpButtonPresenter> for the Check Badge "
@@ -177,6 +170,9 @@ ShBadgesPresenter >> copySelectedBadge [
 ShBadgesPresenter >> deleteDefinedVariables [
 	"Delete defined variables for the current application"
 	
+	(self confirm: 'This will clear all variables from the store.
+Are you sure?')
+		ifFalse: [ ^ self ].
 	self application deleteDefinedVariables.
 	allVariablesTable items: self badgeUserVariables associations.
 	self inform: 'Cleared all variables'.
@@ -184,9 +180,14 @@ ShBadgesPresenter >> deleteDefinedVariables [
 
 { #category : #callbacks }
 ShBadgesPresenter >> getSelectedBadge [
-	" Private - Callback for Check button "
+	"Private - Callback for get badge button"
 
-	badgesImageTarget image: (ZnEasy getPng: self builtBadgeURLText , '.png').
+	| badgeGetUrl |
+	
+	badgeGetUrl := self urlBuilder parseGetUrl: self builtBadgeMarkdownText.
+	(self urlBuilder validateGetUrl: badgeGetUrl)
+		ifFalse: [ badgesImageTarget image: (ZnEasy getPng: (self urlBuilder buildGetPngUrl: badgeGetUrl)) ]
+		ifTrue: [ self inform: 'Not a valid target to get a badge' ].
 
 ]
 
@@ -402,10 +403,9 @@ ShBadgesPresenter >> loadDefinedVariables [
 		extensions: #('ston')
 		path: StartupPreferencesLoader preferencesGeneralFolder)
 			ifNotNil: [ : selection | 
-				self badgeUserVariables: 
-					(self application 
-						configurationFile: selection;
-						loadDefinedVariables).
+				self application 
+					configurationFile: selection;
+					loadDefinedVariables.
 				allVariablesTable items: self badgeUserVariables associations ]
 ]
 
@@ -575,6 +575,12 @@ ShBadgesPresenter >> updateNewBadgeTypeSelected [
 	self badgeTextTemplate clearContent.
 	self badgesTextTarget clearContent.
 	self variablesTable items: Array empty.
+]
+
+{ #category : #accessing }
+ShBadgesPresenter >> urlBuilder [
+
+	^ ShBadgesUrlBuilder new
 ]
 
 { #category : #accessing }

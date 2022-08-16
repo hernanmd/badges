@@ -100,11 +100,10 @@ ShBadgesApp >> deleteDefinedVariables [
 
 { #category : #accessing }
 ShBadgesApp >> loadDefinedVariables [
-	"Load user defined files from the default configuration file"
+	"Load user defined files from the receiver's configuration file"
 
-	| data |
-	data := STON fromStream: self configurationFile readStream.
-	^ data
+	self badgeUserVariables: (STON fromStream: self configurationFile readStream).
+
 ]
 
 { #category : #accessing }
