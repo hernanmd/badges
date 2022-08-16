@@ -199,13 +199,6 @@ ShBadgesPresenter >> initialExtent [
 ]
 
 { #category : #initialization }
-ShBadgesPresenter >> initialize [
-
-	super initialize.
-	badgesCollector := nil.
-]
-
-{ #category : #initialization }
 ShBadgesPresenter >> initializeActionBar [
 
 	| closeButton checkButton copyButton |
@@ -352,7 +345,7 @@ ShBadgesPresenter >> initializeLayout [
 			add: 'Preview' height: self class labelHeight;
 			add: #badgesImageTarget height: 50;			
 			spacing: 4;
-			add: self toolbarLayout height: self class toolbarHeight;				
+			add: self toolbarLayout height: self class toolbarHeight;
 			yourself);
 		yourself)
 ]
@@ -505,7 +498,7 @@ ShBadgesPresenter >> toolbarLayout [
 
 	^ SpBoxLayout newLeftToRight
 		spacing: 3;
-		add: #toolbar width: 600;
+		add: #toolbar;
 		yourself
 ]
 

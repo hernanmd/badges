@@ -1,13 +1,12 @@
 "
-Builds a Collection of badges collected from the Shields.io website.
+Builds a `Collection` of badges collected from the [Shields.io](https://www.shields.io) badge service provider..
 
 Internal Representation and Key Implementation Points.
 
-    Instance Variables
-	badges:		<Object>
+# Instance Variables
 
+- badges:		<Collection>
 
-    Implementation Points
 "
 Class {
 	#name : #ShBadgeCollector,
@@ -77,6 +76,7 @@ ShBadgeCollector >> buildPngURLString: aString [
 	^ String streamContents: [ : stream |
 			stream 
 				<< ShBadge baseUrl;
+				<< $/;
 				<< (((aString copyWithoutAll: '"') withoutPrefix: '/') withoutSuffix: '/');
 				<< '.png' ]
 			

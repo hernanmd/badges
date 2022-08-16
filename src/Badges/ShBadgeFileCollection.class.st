@@ -34,7 +34,7 @@ ShBadgeFileCollection >> initializeBadges [
 
 { #category : #initialization }
 ShBadgeFileCollection >> readShields [
-	" Answer the contents of the receiver's badges file "
+	"Answer a <Collection> with the contents of the receiver's badges file"
 
 	^ FLMaterializer materializeFromFileNamed: self shieldsFilename 
 ]

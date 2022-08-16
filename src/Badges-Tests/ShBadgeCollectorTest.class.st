@@ -3,7 +3,7 @@ A ShBadgeCollectorTest is a test class for testing the behavior of ShBadgeCollec
 "
 Class {
 	#name : #ShBadgeCollectorTest,
-	#superclass : #TestCase,
+	#superclass : #ShBadgeAbstractTest,
 	#instVars : [
 		'collector'
 	],
@@ -22,12 +22,6 @@ ShBadgeCollectorTest >> collector: anObject [
 	collector := anObject
 ]
 
-{ #category : #tests }
-ShBadgeCollectorTest >> newForm [
-
-	^ Form extent: 1 @ 1
-]
-
 { #category : #running }
 ShBadgeCollectorTest >> setUp [ 
 
@@ -35,7 +29,7 @@ ShBadgeCollectorTest >> setUp [
 	self collector: ShBadgeCollector new.
 ]
 
-{ #category : #test }
+{ #category : #tests }
 ShBadgeCollectorTest >> testBadgeCategories [
 
 	self assert: (self collector badgeCategories isKindOf: Collection).
@@ -43,11 +37,41 @@ ShBadgeCollectorTest >> testBadgeCategories [
 ]
 
 { #category : #tests }
+ShBadgeCollectorTest >> testBadges [
+
+	self assert: (collector badges isKindOf: ShBadgeCollection).
+	self assert: collector badges hasShields.
+]
+
+{ #category : #tests }
+ShBadgeCollectorTest >> testBadgesAt [
+
+	| buildBadges |
+	
+	buildBadges := collector badgesAt: 'Build'.
+	self deny: buildBadges isEmpty.
+	self assert: (buildBadges allSatisfy: [ :b | b isKindOf: ShBadge ]).
+
+	self should: [ collector badgesAt: String empty ] raise: NotFound.
+	self should: [ collector badgesAt: nil ] raise: NotFound
+]
+
+{ #category : #tests }
+ShBadgeCollectorTest >> testBuildPngURLString [
+
+	self assert: ((collector buildPngURLString: '') isKindOf: String).
+	self assert: ((collector buildPngURLString: '') beginsWith: ShBadge baseUrl).
+	
+	self assert: (collector buildPngURLString: '/test') equals: 'https://img.shields.io/test.png'.
+	
+]
+
+{ #category : #tests }
 ShBadgeCollectorTest >> testNewBadgeNamedCodeImgForm [
 
 	| newBadge |
 	
-	newBadge := self collector newBadgeNamed: 'test' code: 'code' imgForm: self newForm.
+	newBadge := self collector newBadgeNamed: 'test' code: 'code' imgForm: self newMockForm.
 	self
 		assert: (newBadge isKindOf: ShBadge)
 		description: 'It test that a new badge is actually a ShBadge'.

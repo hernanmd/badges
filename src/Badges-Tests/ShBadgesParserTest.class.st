@@ -50,7 +50,7 @@ ShBadgesParserTest >> testCollectBadgeVariables [
 
 ]
 
-{ #category : #test }
+{ #category : #tests }
 ShBadgesParserTest >> testCollectBadgeVariablesFromPath [
 
 	self assert: ((shBadgesParser collectBadgeVariablesFromPath: String empty) isKindOf: Collection).
