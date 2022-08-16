@@ -13,8 +13,7 @@ Class {
 	#name : #ShBadgeCollector,
 	#superclass : #Object,
 	#instVars : [
-		'badges',
-		'soupTable'
+		'badges'
 	],
 	#category : #'Badges-Core'
 }

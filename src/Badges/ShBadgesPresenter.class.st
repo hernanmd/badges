@@ -18,7 +18,8 @@ Class {
 		'variablesToolbar',
 		'badgeParser',
 		'allVariablesTable',
-		'stylingTable'
+		'stylingTable',
+		'badgesImageTarget'
 	],
 	#category : #'Badges-UI'
 }
@@ -130,41 +131,24 @@ ShBadgesPresenter >> buildBadgeMDUrl: text [
 ]
 
 { #category : #private }
-ShBadgesPresenter >> buildBadgeUrl [
-	"Answer a <String> with the built badge"
+ShBadgesPresenter >> builtBadgeMarkdownText [
+	"Answer a <String> with the formatted Markdown image for the built badge"
 
 	^ badgesTextTarget text
+]
+
+{ #category : #callbacks }
+ShBadgesPresenter >> builtBadgeURLText [
+	"Answer a <String> representing the built URL for the selected badge"
+	
+	^ (self builtBadgeMarkdownText copyAfter: $() copyUpTo: $)
 ]
 
 { #category : #accessing }
 ShBadgesPresenter >> checkButton [
 	" Answer the receiver's <SpButtonPresenter> for the Check Badge "
 
-	^ self toolbar presenters detect: [ : btn | btn label = 'Check' ]
-]
-
-{ #category : #callbacks }
-ShBadgesPresenter >> checkSelectedBadge [
-	" Private - Callback for Check button "
-
-	WebBrowser openOn: self buildBadgeUrl.
-	self copySelectedBadge.
-]
-
-{ #category : #initialization }
-ShBadgesPresenter >> collectBadgeStyles [
-
-	^ { 
-		'style' -> #('plastic' 'flat' 'flat-square' 'for-the-badge' 'social') .
-		'label' -> '' .
-		'labelColor' -> '' .
-		'color' -> '' .
-		'logo' -> '' .
-		'logoColor' -> '' .
-		'logoWidth' -> '' .
-		'link' -> '' .
-		'cacheSeconds' -> '' .
-		 }
+	^ self toolbar presenters detect: [ : btn | btn label = 'Get' ]
 ]
 
 { #category : #private }
@@ -185,7 +169,7 @@ ShBadgesPresenter >> copyButton [
 ShBadgesPresenter >> copySelectedBadge [
 	" Private - Callback for Copy badge Markdown button "
 
-	Clipboard clipboardText: self buildBadgeUrl.
+	Clipboard clipboardText: self builtBadgeMarkdownText.
 	self inform: 'Copied to clipboard'
 ]
 
@@ -196,6 +180,14 @@ ShBadgesPresenter >> deleteDefinedVariables [
 	self application deleteDefinedVariables.
 	allVariablesTable items: self badgeUserVariables associations.
 	self inform: 'Cleared all variables'.
+]
+
+{ #category : #callbacks }
+ShBadgesPresenter >> getSelectedBadge [
+	" Private - Callback for Check button "
+
+	badgesImageTarget image: (ZnEasy getPng: self builtBadgeURLText , '.png').
+
 ]
 
 { #category : #initialization }
@@ -218,13 +210,14 @@ ShBadgesPresenter >> initializeActionBar [
 
 	| closeButton checkButton copyButton |
 	closeButton := self newCloseButton.
-	checkButton := self newCheckButton.
+	checkButton := self newGetButton.
 	copyButton := self newCopyButton.
 
-	toolbar := self newActionBar
-		add: closeButton;
+	toolbar := self newButtonBar
+		placeAtEnd;
 		add: checkButton;
 		add: copyButton;
+		add: closeButton;
 		yourself
 ]
 
@@ -240,6 +233,12 @@ ShBadgesPresenter >> initializeAllBadgeVariablesPanes [
 		showColumnHeaders;
 		beResizable.
 
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> initializeBadgePreviewTarget [
+
+	badgesImageTarget := self newImage.
 ]
 
 { #category : #initialization }
@@ -268,11 +267,7 @@ ShBadgesPresenter >> initializeBadgeVariablesPanes [
 				 evaluated: [ :val | 
 					 self application badgeUserVariablesAt: val key ];
 				 beEditable;
-				 onAcceptEdition: [ :assoc : text | 
-					 self application
-						 badgeUserVariablesAt: assoc key
-						 put: text.
-					 allVariablesTable items: self badgeUserVariables associations ]);
+				 onAcceptEdition: [ :assoc : text | self updateBadgeVariable: assoc value: text ]);
 		showColumnHeaders;
 		beResizable
 ]
@@ -343,8 +338,8 @@ ShBadgesPresenter >> initializeLayout [
 				add: (SpBoxLayout newTopToBottom
 					add: 'Badge variables' expand: false;	
 					add: #variablesTable;
-					add: 'Styling' expand: false;
-					add: #stylingTable;
+					"add: 'Styling' expand: false;
+					add: #stylingTable;"
 					add: 'All variables' expand: false;
 					add: #allVariablesTable;
 					add: #variablesToolbar height: self class toolbarHeight;					
@@ -352,8 +347,10 @@ ShBadgesPresenter >> initializeLayout [
 				yourself);
 			add: 'Template' height: self class labelHeight;
 			add: #badgeTextTemplate height: 50;
-			add: 'Custom' height: self class labelHeight;
+			add: 'Markdown' height: self class labelHeight;
 			add: #badgesTextTarget height: 50;
+			add: 'Preview' height: self class labelHeight;
+			add: #badgesImageTarget height: 50;			
 			spacing: 4;
 			add: self toolbarLayout height: self class toolbarHeight;				
 			yourself);
@@ -369,27 +366,14 @@ ShBadgesPresenter >> initializePresenters [
 		initializeBadgesTable;
 		initializeBadgeTextTemplate;
 		initializeBadgeTextTarget;
+		initializeBadgePreviewTarget;
 		initializeBadgeVariablesPanes;
 		initializeAllBadgeVariablesPanes;
 		initializeVariablesToolbar;
-		initializeStylingPanes;
+		"initializeStylingPanes;"
 		initializeActionBar;
 		initializeFocus;
 		initializeLayout.
-]
-
-{ #category : #initialization }
-ShBadgesPresenter >> initializeStylingPanes [
-
-	stylingTable := self newTable.
-	stylingTable
-		addColumn: (SpStringTableColumn title: 'Type' evaluated: #key) beSortable;
-		addColumn: (SpStringTableColumn new 
-			title: 'Value';
-			evaluated: #value);
-		showColumnHeaders;
-		items: self collectBadgeStyles;
-		beResizable.
 ]
 
 { #category : #initialization }
@@ -433,18 +417,6 @@ ShBadgesPresenter >> loadDefinedVariables [
 ]
 
 { #category : #private }
-ShBadgesPresenter >> newCheckButton [
-
-	^ self newButton
-		  label: 'Check';
-		  icon: (self iconNamed: #smallRemoteOpen);
-		  help: 'Open a web browser with the selected shield badge';
-		  action: [ self checkSelectedBadge ];
-		  enabled: false;
-		  yourself
-]
-
-{ #category : #private }
 ShBadgesPresenter >> newCloseButton [
 
 	^ self newButton
@@ -463,6 +435,18 @@ ShBadgesPresenter >> newCopyButton [
 		  icon: (self iconNamed: #smallCopy);
 		  help: 'Copy the Markdown text of the selected shield badge';
 		  action: [ self copySelectedBadge ];
+		  enabled: false;
+		  yourself
+]
+
+{ #category : #private }
+ShBadgesPresenter >> newGetButton [
+
+	^ self newButton
+		  label: 'Get';
+		  icon: (self iconNamed: #smallRemoteOpen);
+		  help: 'Preview the selected shield badge';
+		  action: [ self getSelectedBadge ];
 		  enabled: false;
 		  yourself
 ]
@@ -560,9 +544,22 @@ ShBadgesPresenter >> updateBadgeTarget: badgeText [
 	varMappings do: [ : varName | 
 		targetBadgeText := targetBadgeText 
 			copyWithRegex: '\:' , varName key 
-			matchesReplacedWith: varName value ].
+			matchesReplacedWith: (varName value 
+				ifEmpty: [ ':' , varName key ]
+				ifNotEmpty: [ varName value ]) ].
 	self badgesTextTarget text: (self buildBadgeMDUrl: targetBadgeText).
 
+]
+
+{ #category : #initialization }
+ShBadgesPresenter >> updateBadgeVariable: assoc value: text [
+	"Private - User has pressed enter to accept a new variable value"
+
+	self application
+		 badgeUserVariablesAt: assoc key
+		 put: text.
+	allVariablesTable items: self badgeUserVariables associations.
+	self updateBadgeTarget: self selectedBadgeItem badgeCode.
 ]
 
 { #category : #callbacks }

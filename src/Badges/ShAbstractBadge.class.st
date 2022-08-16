@@ -1,3 +1,9 @@
+"
+A badge is a validated indicator of accomplishment, skill, quality or interest that can be earned in various learning environments.
+
+This is an abstract class to group common state for multiple badge service providers.
+
+"
 Class {
 	#name : #ShAbstractBadge,
 	#superclass : #Object,

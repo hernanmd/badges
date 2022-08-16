@@ -13,7 +13,7 @@ Class {
 	#category : #'Badges-Core'
 }
 
-{ #category : #accessing }
+{ #category : #'instance creation' }
 ShBadgeCollection class >> new [ 
 
 	^ super new 

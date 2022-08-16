@@ -1,7 +1,5 @@
 "
-A badge is a validated indicator of accomplishment, skill, quality or interest that can be earned in various learning environments.
-
-This class represents a badge obtained through the badge generation service Shields.io.
+This class implements a badge obtained through the badge generation service Shields.io.
 
 ## Examples
 
