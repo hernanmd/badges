@@ -87,7 +87,10 @@ ShBadgesApp >> configurationFile: anObject [
 ShBadgesApp >> defaultConfigurationFile [
 	"Answer a default <FileReference> for storing user defined badge variables"
 
-	^ (StartupPreferencesLoader preferencesGeneralFolder / 'shBadgesConfig.ston') asFileReference
+	| configFileRef |
+	configFileRef := (StartupPreferencesLoader preferencesGeneralFolder / 'shBadgesConfig.ston') asFileReference.
+	configFileRef ensureCreateFile.
+	^ configFileRef.
 ]
 
 { #category : #accessing }
