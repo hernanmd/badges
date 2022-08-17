@@ -24,14 +24,6 @@ BaselineOfBadges >> baseline: spec [
 				group: 'default' 					with: #('Core') ]
 ]
 
-{ #category : #baselines }
-BaselineOfBadges >> chrysal: spec [
-
-	spec 
-		baseline: 'Chrysal' 
-		with: [ spec repository: 'github://Ducasse/Chrysal' ].
-]
-
 { #category : #preloading }
 BaselineOfBadges >> ensureMetacelloFileDownload [
    

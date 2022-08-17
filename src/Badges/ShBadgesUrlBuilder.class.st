@@ -1,3 +1,7 @@
+"
+Utility methods to parse and format URL's.
+
+"
 Class {
 	#name : #ShBadgesUrlBuilder,
 	#superclass : #Object,

@@ -1,8 +1,8 @@
 "
 Main Spec application class which mainly has two roles
 
-- Store the badge variables.
-- Has a reference to a configuration file.
+- Protocol to access apllication badge variables.
+- Holds a reference to a configuration file.
 
 "
 Class {
