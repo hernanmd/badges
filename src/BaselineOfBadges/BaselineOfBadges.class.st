@@ -21,7 +21,7 @@ BaselineOfBadges >> baseline: spec [
 			spec 
 				group: 'Core' 						with: #('Badges');
 				group: 'Tests' 						with: #('Badges' 'Badges-Tests');
-				group: 'default' 					with: #('Core') ]
+				group: 'default' 					with: #('Tests') ]
 ]
 
 { #category : #preloading }
