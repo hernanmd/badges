@@ -119,14 +119,17 @@ ShBadgesPresenter >> buildBadgeMDText [
 ShBadgesPresenter >> buildBadgeMDUrl: text [
 	" Answer a <String> with the text in Markdown format to be pasted in a README file "
 
+	| fullUrl |
+	
+	fullUrl := ShBadge baseUrl , text.
 	^ String streamContents: [ : stream |
 		stream
-			<< $[;
+			<< '[![';
 			<< self buildBadgeMDText;
-			<< $];
-			<< $(;
-			<< ShBadge baseUrl;
-			<< text;
+			<< '](';
+			<< fullUrl;
+			<< ')](';
+			<< fullUrl;
 			<< $) ]
 ]
 
