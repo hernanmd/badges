@@ -7,9 +7,19 @@
 - [Description](#description)
 - [Installation](#installation)
   - [Baseline String](#baseline-string)
+- [Usage](#usage)
 - [Contribute](#contribute)
   - [Version management](#version-management)
 - [License](#license)
+
+# Description
+
+Features:
+
+- Select the badges you like, complete the required variables, and get your badge(s).
+- Save and load commonly used variables.
+- Preview both Markdown and resulting PNG.
+- View all your saved badge variables.
 
 # Installation
 
@@ -18,7 +28,7 @@ EpMonitor disableDuring: [
 	Metacello new	
 		baseline: 'Badges';	
 		onWarningLog;
-		repository: 'github://hernanmd/shield-badges/src';	
+		repository: 'github://hernanmd/badges/src';	
 		load ].
 ```
 
@@ -30,14 +40,13 @@ If you want to add the Badges to your Metacello Baselines or Configurations, cop
 	" ... "
 	spec
 		baseline: 'Badges' 
-		with: [ spec repository: 'github://hernanmd/shield-badges/src' ];
+		with: [ spec repository: 'github://hernanmd/badges/src' ];
 	" ... "
 ```
 
 # Usage
 
-
-# Description
+![badges](https://user-images.githubusercontent.com/4825959/184985084-ecf7908f-ab1f-4b5f-a6d0-e1a9f8dd4b26.gif)
 
 # Contribute
 

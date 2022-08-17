@@ -6,8 +6,11 @@ env:
 on:
   push:
     branches: [ master ]
+    paths-ignore: [ '**.md' ]
   pull_request:
     branches: [ master ]
+    paths-ignore: [ '**.md' ]
+  workflow_dispatch:  # Allows you to run this workflow manually from the Actions tab        
 
 jobs:
   build:
