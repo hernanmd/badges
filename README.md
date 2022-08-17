@@ -1,10 +1,14 @@
 [![license-badge](https://img.shields.io/badge/license-MIT-blue.svg)](https://img.shields.io/badge/license-MIT-blue.svg)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/hernanmd/badges/CIMatrix)](https://img.shields.io/github/workflow/status/hernanmd/badges/CIMatrix)
+[![GitHub repo size](https://img.shields.io/github/repo-size/hernanmd/badges)](https://img.shields.io/github/repo-size/hernanmd/badges)
+[![GitHub Repo stars](https://img.shields.io/github/stars/hernanmd/badges?style=social)](https://img.shields.io/github/stars/hernanmd/badges?style=social)
 
 # Table of Contents
 
-- [Description](#description)
+- [Demo](#demo)
+- [Features](#features)
 - [Installation](#installation)
   - [Baseline String](#baseline-string)
 - [Usage](#usage)
@@ -12,9 +16,11 @@
   - [Version management](#version-management)
 - [License](#license)
 
-# Description
+# Demo
 
-Features:
+![badges](https://user-images.githubusercontent.com/4825959/185053552-9a8b1124-2ad2-442c-ab18-f749630e4a4a.gif)
+
+# Features
 
 - Select the badges you like, complete the required variables, and get your badge(s).
 - Save and load commonly used variables.
@@ -43,10 +49,6 @@ If you want to add the Badges to your Metacello Baselines or Configurations, cop
 		with: [ spec repository: 'github://hernanmd/badges/src' ];
 	" ... "
 ```
-
-# Usage
-
-![badges](https://user-images.githubusercontent.com/4825959/184985084-ecf7908f-ab1f-4b5f-a6d0-e1a9f8dd4b26.gif)
 
 # Contribute
 
